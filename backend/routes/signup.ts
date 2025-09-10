@@ -1,9 +1,8 @@
 import express from "express";
 const app = express();
 
-app.post("/signup", (req, res) => {
-  const { name, email } = req.body;
-  res.json({ success: true, message: `User ${name} registered with email ${email}` });
+app.get("/signup", (req, res) => {
+  res.send("This is sign Up route");
 });
 
 export default app;

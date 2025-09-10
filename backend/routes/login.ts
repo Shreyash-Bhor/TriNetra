@@ -1,13 +1,11 @@
 import express from "express";
 const app = express();
 
+app.get("/login", (req, res) => {
+  res.send("This is Login Route");
+});
 app.post("/login", (req, res) => {
-  const { email, password } = req.body;
-  if (email === "admin@example.com" && password === "123456") {
-    res.json({ success: true, message: "Login successful", token: "fake-jwt-token" });
-  } else {
-    res.json({ success: false, message: "Invalid credentials" });
-  }
+  res.send("This is Login route");
 });
 
 export default app;
