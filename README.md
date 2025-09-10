@@ -1,0 +1,1 @@
+# TriNetra - AI Powered Crowd Management and Public Safety System
