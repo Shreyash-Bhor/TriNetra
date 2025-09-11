@@ -1,64 +1,84 @@
-/* Tailwind core layers (standard) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* External animations (keeps your tw-animate-css import) */
+@import "tailwindcss";
 @import "tw-animate-css";
 
-/* ---------- Design tokens (light / glass + dark mode) ---------- */
-/* Primary token set: glassmorphism design (used by components) */
-:root {
-  /* radii */
-  --radius: 0.75rem;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+@custom-variant dark (&:is(.dark *));
 
-  /* core tokens (glass + blue accents) */
-  --background: oklch(0.145 0 0); /* Dark-ish background for glassmorphism */
+:root {
+  /* Updated color tokens for glassmorphism design with dark theme and blue accents */
+  --background: oklch(0.145 0 0); /* Dark background for glassmorphism */
   --foreground: oklch(0.985 0 0); /* White text */
-  --card: oklch(0.145 0.02 240 / 0.1); /* Frosted glass panels */
+  --card: oklch(0.145 0.02 240 / 0.1); /* Frosted glass panels with subtle blue tint */
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0.02 240 / 0.1);
   --popover-foreground: oklch(0.985 0 0);
-
-  --primary: oklch(0.646 0.222 264.376); /* Vibrant blue */
+  --primary: oklch(0.646 0.222 264.376); /* Vibrant blue for interactive elements */
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0); /* Gray / subtle */
+  --secondary: oklch(0.269 0 0); /* Gray for secondary elements */
   --secondary-foreground: oklch(0.985 0 0);
-
-  --muted: oklch(0.97 0 0 / 0.05);
+  --muted: oklch(0.97 0 0 / 0.05); /* Very subtle light muted */
   --muted-foreground: oklch(0.556 0 0);
-
-  --accent: var(--primary);
-  --accent-foreground: var(--primary-foreground);
-
+  --accent: oklch(0.646 0.222 264.376); /* Same as primary for consistency */
+  --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-
-  --border: oklch(0.985 0 0 / 0.2);
+  --border: oklch(0.985 0 0 / 0.2); /* Light transparent border for glass effect */
   --input: oklch(0.269 0 0);
   --ring: oklch(0.646 0.222 264.376);
-
   --chart-1: oklch(0.646 0.222 264.376);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-
-  /* sidebar */
+  --radius: 0.75rem; /* Slightly larger radius for modern look */
   --sidebar: oklch(0.145 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-primary: oklch(0.646 0.222 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.985 0 0 / 0.2);
-  --sidebar-ring: var(--ring);
+  --sidebar-ring: oklch(0.646 0.222 264.376);
+}
 
-  /* convenience mapping for components (mirrors previous @theme inline) */
+.dark {
+  /* Dark mode tokens remain similar but with enhanced glass effects */
+  --background: oklch(0.08 0 0); /* Even darker for better contrast */
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.985 0 0 / 0.05); /* Light glass panels in dark mode */
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.985 0 0 / 0.05);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.7 0.25 264.376); /* Brighter blue in dark mode */
+  --primary-foreground: oklch(0.08 0 0);
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.7 0.25 264.376);
+  --accent-foreground: oklch(0.08 0 0);
+  --destructive: oklch(0.6 0.25 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.985 0 0 / 0.1);
+  --input: oklch(0.2 0 0);
+  --ring: oklch(0.7 0.25 264.376);
+  --chart-1: oklch(0.7 0.25 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.08 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.7 0.25 264.376);
+  --sidebar-primary-foreground: oklch(0.08 0 0);
+  --sidebar-accent: oklch(0.2 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.985 0 0 / 0.1);
+  --sidebar-ring: oklch(0.7 0.25 264.376);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -83,6 +103,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -93,111 +117,20 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Dark mode overrides (toggle by adding .dark to <html> or <body>) */
-.dark {
-  --background: oklch(0.08 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.985 0 0 / 0.05);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.985 0 0 / 0.05);
-  --popover-foreground: oklch(0.985 0 0);
-
-  --primary: oklch(0.7 0.25 264.376);
-  --primary-foreground: oklch(0.08 0 0);
-  --secondary: oklch(0.2 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-
-  --accent: var(--primary);
-  --accent-foreground: var(--primary-foreground);
-
-  --destructive: oklch(0.6 0.25 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-
-  --border: oklch(0.985 0 0 / 0.1);
-  --input: oklch(0.2 0 0);
-  --ring: oklch(0.7 0.25 264.376);
-
-  --chart-1: oklch(0.7 0.25 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-
-  --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.7 0 25 264.376); /* fallback - note valid oklch will be used */
-  --sidebar-primary-foreground: oklch(0.08 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.985 0 0 / 0.1);
-  --sidebar-ring: var(--ring);
-
-  /* maintain convenience mapping in dark mode */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-}
-
-/* ---------- Base layer (applies global utility mapping) ---------- */
 @layer base {
-  /* use CSS variables for border and ring if you want to map to utilities */
   * {
-    /* apply a sensible default outline/border behavior */
-    box-sizing: border-box;
+    @apply border-border outline-ring/50;
   }
-
-  html, body, #__next {
-    height: 100%;
-  }
-
   body {
-    /* tailwind utility equivalents (kept plain CSS here) */
-    background: var(--color-background);
-    color: var(--color-foreground);
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
   }
-}
 
-/* ---------- Components layer: glass utilities ---------- */
-@layer components {
+  /* Added glassmorphism utility classes */
   .glass {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background-color: color-mix(in oklch, var(--card) 50%, transparent);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    @apply backdrop-blur-md bg-card/50 border border-border/50;
   }
 
   .glass-strong {
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    background-color: color-mix(in oklch, var(--card) 80%, transparent);
-    border: 1px solid color-mix(in oklch, var(--color-border) 60%, transparent);
-    border-radius: var(--radius-lg);
+    @apply backdrop-blur-lg bg-card/80 border border-border/60;
   }
-
-  /* small helpers */
-  .radius-sm { border-radius: var(--radius-sm); }
-  .radius-md { border-radius: var(--radius-md); }
-  .radius-lg { border-radius: var(--radius-lg); }
 }
