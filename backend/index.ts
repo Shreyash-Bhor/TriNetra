@@ -3,8 +3,8 @@ import cors from "cors";
 import crowdApp from "./routes/crowd";
 import loginApp from "./routes/login";
 import signupApp from "./routes/signup";
+import connectDB from "./lib/db";
 import dotenv from "dotenv";
-import { connectDB } from "./init/db";
 
 dotenv.config();
 const port = process.env.PORT;
