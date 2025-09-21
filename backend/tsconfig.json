@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",                 // Modern JS output
+    "module": "NodeNext",               // For ES module support (import/export)
+    "moduleResolution": "NodeNext",     // Resolves modules correctly
+    "outDir": "dist",                   // Compiled JS output folder
+    "rootDir": ".",                      // Root folder for TS files
+    "strict": true,                      // Enable strict type checks
+    "esModuleInterop": true,             // For import compatibility
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"],               // Compile all TS files
+  "exclude": ["node_modules", "dist"]   // Ignore these folders
+}
