@@ -2,9 +2,7 @@ import express from "express";
 import cors from "cors";
 import crowdApp from "./routes/crowd";
 import loginApp from "./routes/login";
-import signupApp from "./routes/signup";
-import dotenv from "dotenv";
-import { connectDB } from "./init/db";
+import signupApp from "./routes/signup"
 
 dotenv.config();
 const port = process.env.PORT;
