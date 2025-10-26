@@ -1,18 +1,24 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Github, Mail, Eye, EyeOff, Shield, Users, Brain } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Github, Mail, Eye, EyeOff, Shield, Users, Brain } from "lucide-react";
 
 export function SignUpForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,16 +26,16 @@ export function SignUpForm() {
     email: "",
     password: "",
     confirmPassword: "",
-  })
+  });
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Form submitted:", formData)
-  }
+    e.preventDefault();
+    console.log("Form submitted:", formData);
+  };
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -38,12 +44,16 @@ export function SignUpForm() {
           <Shield className="h-8 w-8 text-primary" />
         </div>
         <h1 className="text-3xl font-bold text-foreground mb-2">Trinetra</h1>
-        <p className="text-muted-foreground text-balance">AI-Powered Crowd Management & Public Safety System</p>
+        <p className="text-muted-foreground text-balance">
+          AI-Powered Crowd Management & Public Safety System
+        </p>
       </div>
 
       <Card className="glass-strong shadow-2xl border-white/30">
         <CardHeader className="text-center pb-6">
-          <CardTitle className="text-2xl font-bold text-foreground">Create Account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">
+            Create Account
+          </CardTitle>
           <CardDescription className="text-muted-foreground">
             Join the future of public safety management
           </CardDescription>
@@ -53,7 +63,10 @@ export function SignUpForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-sm font-medium text-foreground">
+                <Label
+                  htmlFor="firstName"
+                  className="text-sm font-medium text-foreground"
+                >
                   First Name
                 </Label>
                 <Input
@@ -61,13 +74,18 @@ export function SignUpForm() {
                   type="text"
                   placeholder="John"
                   value={formData.firstName}
-                  onChange={(e) => handleInputChange("firstName", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("firstName", e.target.value)
+                  }
                   className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-sm font-medium text-foreground">
+                <Label
+                  htmlFor="lastName"
+                  className="text-sm font-medium text-foreground"
+                >
                   Last Name
                 </Label>
                 <Input
@@ -75,7 +93,9 @@ export function SignUpForm() {
                   type="text"
                   placeholder="Doe"
                   value={formData.lastName}
-                  onChange={(e) => handleInputChange("lastName", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("lastName", e.target.value)
+                  }
                   className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
                   required
                 />
@@ -83,7 +103,10 @@ export function SignUpForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium text-foreground">
+              <Label
+                htmlFor="username"
+                className="text-sm font-medium text-foreground"
+              >
                 Username
               </Label>
               <Input
@@ -98,7 +121,10 @@ export function SignUpForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-foreground">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-foreground"
+              >
                 Email
               </Label>
               <Input
@@ -113,7 +139,10 @@ export function SignUpForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-foreground"
+              >
                 Password
               </Label>
               <div className="relative">
@@ -122,7 +151,9 @@ export function SignUpForm() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   className="glass border-white/20 focus:border-primary/50 transition-all duration-200 pr-10"
                   required
                 />
@@ -143,7 +174,10 @@ export function SignUpForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-foreground"
+              >
                 Confirm Password
               </Label>
               <div className="relative">
@@ -152,7 +186,9 @@ export function SignUpForm() {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("confirmPassword", e.target.value)
+                  }
                   className="glass border-white/20 focus:border-primary/50 transition-all duration-200 pr-10"
                   required
                 />
@@ -207,28 +243,16 @@ export function SignUpForm() {
           <div className="text-center pt-4">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <a href="#" className="text-primary hover:text-primary/80 font-medium transition-colors duration-200">
+              <a
+                href="#"
+                className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+              >
                 Sign In
               </a>
             </p>
           </div>
         </CardContent>
       </Card>
-
-      <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-        <div className="glass p-4 rounded-lg">
-          <Brain className="h-6 w-6 text-primary mx-auto mb-2" />
-          <p className="text-xs text-muted-foreground">AI Powered</p>
-        </div>
-        <div className="glass p-4 rounded-lg">
-          <Users className="h-6 w-6 text-primary mx-auto mb-2" />
-          <p className="text-xs text-muted-foreground">Crowd Control</p>
-        </div>
-        <div className="glass p-4 rounded-lg">
-          <Shield className="h-6 w-6 text-primary mx-auto mb-2" />
-          <p className="text-xs text-muted-foreground">Public Safety</p>
-        </div>
-      </div>
     </div>
-  )
+  );
 }
