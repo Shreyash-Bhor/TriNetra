@@ -13,10 +13,14 @@
   "license": "ISC",
   "packageManager": "pnpm@10.15.1",
   "dependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "bcrpyt": "^2.0.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
-    "mongoose": "^7.8.7"
+    "mongoose": "^7.8.7",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
