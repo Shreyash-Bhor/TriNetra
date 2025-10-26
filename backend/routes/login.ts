@@ -1,8 +1,6 @@
-import express from "express";
 import bcrypt from "bcrypt";
 import { loginUserSchema } from "../schemas/loginUserSchema";
 import { UserModel } from "../models/User";
-const app = express();
 
 export const loginApp = async (req: Request, res: Response) => {
   try {
