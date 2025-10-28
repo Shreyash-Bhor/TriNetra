@@ -1,30 +1,59 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Github, Mail, Eye, EyeOff, Shield, Router } from "lucide-react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Github, Mail, Eye, EyeOff, Shield } from "lucide-react"
-
+interface LoginFormData {
+  email: string;
+  password: string;
+}
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+  const handleInputChange = (field: keyof LoginFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Login submitted:", formData)
-  }
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await api.post("auth/login", formData);
+      localStorage.setItem("token", response.data.token);
+      console.log("Login Success:", response.data);
+      router.push("/dashboard");
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || "Login failed! Please try again";
+      setError(message);
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -42,7 +71,9 @@ export function LoginForm() {
       {/* Card */}
       <Card className="glass-strong shadow-2xl border-white/30">
         <CardHeader className="text-center pb-6">
-          <CardTitle className="text-2xl font-bold text-foreground">Sign In</CardTitle>
+          <CardTitle className="text-2xl font-bold text-foreground">
+            Sign In
+          </CardTitle>
           <CardDescription className="text-muted-foreground">
             Access your account securely
           </CardDescription>
@@ -52,7 +83,10 @@ export function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-foreground">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-foreground"
+              >
                 Email
               </Label>
               <Input
@@ -68,7 +102,10 @@ export function LoginForm() {
 
             {/* Password */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-foreground"
+              >
                 Password
               </Label>
               <div className="relative">
@@ -77,7 +114,9 @@ export function LoginForm() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
                   className="glass border-white/20 focus:border-primary/50 transition-all duration-200 pr-10"
                   required
                 />
@@ -136,7 +175,10 @@ export function LoginForm() {
           <div className="text-center pt-4">
             <p className="text-sm text-muted-foreground">
               Don’t have an account?{" "}
-              <a href="#" className="text-primary hover:text-primary/80 font-medium transition-colors duration-200">
+              <a
+                href="#"
+                className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+              >
                 Create Account
               </a>
             </p>
@@ -144,5 +186,5 @@ export function LoginForm() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
