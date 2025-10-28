@@ -1,8 +1,12 @@
+import express from "express";
 import bcrypt from "bcrypt";
 import { registerUserSchema } from "../schemas/registerUserSchema";
 import { UserModel } from "../models/User";
 
-export const signupApp = async (req: Request, res: Response) => {
+export const signupApp = async (
+  req: express.Request,
+  res: express.Response
+) => {
   try {
     const data = registerUserSchema.parse(req.body);
     const { username, email, password, firstName, lastName, phone, role } =

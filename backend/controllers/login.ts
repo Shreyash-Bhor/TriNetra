@@ -1,8 +1,9 @@
+import express from "express";
 import bcrypt from "bcrypt";
 import { loginUserSchema } from "../schemas/loginUserSchema";
 import { UserModel } from "../models/User";
 
-export const loginApp = async (req: Request, res: Response) => {
+export const loginApp = async (req: express.Request, res: express.Response) => {
   try {
     const data = loginUserSchema.parse(req.body);
     const { email, password } = data;
