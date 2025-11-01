@@ -1,5 +1,5 @@
 import express from "express";
-import brcypt from "bcrypt";
+import bcrypt from "bcrypt";
 import {registerUserSchema} from "../schemas/registerUserSchema";
 import {UserModel} from "../models/User";
 const app = express();
