@@ -1,12 +1,15 @@
 import express from "express";
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { registerUserSchema } from "../schemas/registerUserSchema";
 import { UserModel } from "../models/User";
+import { generateTokens } from "../utils/generateTokens";
+import RefreshToken from "../models/RefreshToken";
+import hashToken from "../utils/hash";
+import { refreshCookieOpts } from "../utils/cookies";
+import { ENV } from "../config/constants";
 
-export const signupApp = async (
-  req: express.Request,
-  res: express.Response
-) => {
+export const signupApp = async (req: Request, res: Response) => {
   try {
     const data = registerUserSchema.parse(req.body);
     const { username, email, password, firstName, lastName, phone, role } =
@@ -16,22 +19,44 @@ export const signupApp = async (
       return Response.json({ message: "Mail Already exist" }, { status: 401 });
     }
     const hashedpass = await bcrypt.hash(password, 10);
-    const user_mod = new UserModel({
+    const user = new UserModel({
       username,
       email,
       password: hashedpass,
       firstName,
       lastName,
       phone,
-      role,
+      role: role || "user",
     });
-    await user_mod.save();
+    const payload = {
+      sub: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    };
+    const { accessToken, refreshToken } = generateTokens(payload);
+    await RefreshToken.create({
+      user: user._id,
+      tokenHash: hashToken(refreshToken),
+      expiresAt: new Date(Date.now() + refreshCookieOpts.maxAge),
+      userAgent: req.headers["user-agent"],
+      ip:
+        (req.headers["x-forwarded-for"] as string) || req.socket.remoteAddress,
+    });
+    res.cookie(ENV.COOKIE_NAME, refreshToken, refreshCookieOpts);
+    await user.save();
 
-    return Response.json(
-      { message: "User saved successfully" },
-      { status: 200 }
-    );
+    return res.status(201).json({
+      message: "User registered successfully",
+      accessToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+      },
+    });
   } catch (error: any) {
-    return Response.json({ message: error.message }, { status: 500 });
+    console.error("Signup error: ", error);
+    return res.status(500).json({ message: error.message || "Signup failed" });
   }
 };
