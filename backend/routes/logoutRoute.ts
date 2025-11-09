@@ -1,7 +1,7 @@
 import express from "express";
+import { logout } from "../controllers/logout";
 const router = express.Router();
 
-router.get("/crowd/info");
-router.post("/crowd/add");
+router.post("/logout", logout);
 
 export default router;

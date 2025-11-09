@@ -1,8 +1,8 @@
-import React from 'react';
-import {LoginForm} from "../../components/login"
-import {Navigation} from "../../components/navigation"
+import React from "react";
+import { SignUpForm } from "../../components/signup";
+import { Navigation } from "../../components/navigation";
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
@@ -16,8 +16,8 @@ export default function LoginPage() {
       <Navigation />
 
       <main className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
-        <LoginForm />
+        <SignUpForm />
       </main>
     </div>
-  )
+  );
 }
