@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "../utils/jwt";
 
 export interface AuthRequest extends Request {
-  user?: { id: string; email?: string; role?: "admin" | "volunteer" | "user" };
+  user?: {
+    id: string;
+    email?: string;
+    role?: "admin" | "volunteer" | "user";
+  };
 }
 
 export function requireAuth(
@@ -11,25 +15,38 @@ export function requireAuth(
   next: NextFunction
 ) {
   try {
-    const authHeader = req.headers.authorization;
+    // 1️⃣ Prefer token from cookies (task requirement)
+    let token = req.cookies?.accessToken;
 
-    if (!authHeader || !authHeader.startsWith("Bearer")) {
+    // 2️⃣ Fallback to Authorization header (optional)
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+      }
+    }
+
+    if (!token) {
       return res.status(401).json({
         status: "error",
-        message: "Missing or invalid Authorization Header",
+        message: "Authentication token missing",
       });
     }
 
-    const token = authHeader.split("")[1];
     const decoded = verifyAccessToken(token);
+
     req.user = {
       id: decoded.sub,
       email: decoded.email,
       role: (decoded.role as "admin" | "volunteer" | "user") || "user",
     };
+
     next();
-  } catch (error: any) {
-    return res.status(500).json({ message: "Invalid or expired access token" });
+  } catch (error) {
+    return res.status(401).json({
+      status: "error",
+      message: "Invalid or expired access token",
+    });
   }
 }
 
@@ -38,6 +55,7 @@ const ROLE_PRIORITY: Record<"user" | "volunteer" | "admin", number> = {
   volunteer: 2,
   admin: 3,
 };
+
 export function requireRole(
   ...allowedRoles: ("user" | "volunteer" | "admin")[]
 ) {
@@ -45,14 +63,18 @@ export function requireRole(
     if (!req.user) {
       return res.status(401).json({ message: "Not Authenticated" });
     }
+
     const userRole = req.user.role || "user";
     const userRank = ROLE_PRIORITY[userRole];
+
     const minAllowedRank = Math.min(
-      ...allowedRoles.map((r) => ROLE_PRIORITY[r] ?? Infinity)
+      ...allowedRoles.map((r) => ROLE_PRIORITY[r])
     );
+
     if (userRank >= minAllowedRank) {
       return next();
     }
+
     return res
       .status(403)
       .json({ message: "Access Denied: insufficient permissions" });

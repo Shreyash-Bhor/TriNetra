@@ -13,7 +13,7 @@ import getStartedRoutes from "./routes/getStartedRoutes";
 import contactSalesRoutes from "./routes/contactSalesRoutes";
 import crowdRoutes from "./routes/crowdRoutes";
 import alertRoutes from "./routes/alertRoutes";
-import dashboardRoute from "./routes/dashboardRoute";
+import dashboardRoutes from "./routes/dashboardRoutes";
 import infraRoutes from "./routes/infraRoutes";
 import socialRoutes from "./routes/socialRoutes";
 
@@ -45,7 +45,7 @@ app.use("/api/get-started", getStartedRoutes);
 app.use("/api/contact-sales", contactSalesRoutes);
 app.use("/api/crowd", crowdRoutes);
 app.use("/api/alert", alertRoutes);
-app.use("/api/dashboard", dashboardRoute);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/infrastructure", infraRoutes);
 app.use("/api/social", socialRoutes);
 
