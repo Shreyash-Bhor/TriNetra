@@ -31,11 +31,55 @@ export function SignUpForm() {
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
+/*
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
   };
+*/
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("SUBMIT CLICKED");
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+
+        // IMPORTANT
+        phone: "9999999999",   // abhi hardcode, baad me input bana lena
+        //role: "user",
+      }),
+      credentials: "include", // 🔥 cookie ke liye IMPORTANT
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message);
+      return;
+    }
+
+    console.log("Signup success:", data);
+    alert("Signup successful ✅");
+
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+};
 
   return (
     <div className="w-full max-w-md mx-auto">
