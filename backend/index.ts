@@ -16,6 +16,8 @@ import alertRoutes from "./routes/alertRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import infraRoutes from "./routes/infraRoutes";
 import socialRoutes from "./routes/socialRoutes";
+import weatherRoutes from "./routes/weatherRoutes";
+
 
 dotenv.config();
 
@@ -48,6 +50,8 @@ app.use("/api/alert", alertRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/infrastructure", infraRoutes);
 app.use("/api/social", socialRoutes);
+app.use("/api/weather", weatherRoutes);
+
 
 // Root
 app.get("/", (req, res) => {
