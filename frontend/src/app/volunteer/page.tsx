@@ -1,39 +1,99 @@
-'use client'
+"use client";
 
-import Card from "@/components/ui/card";
-import Navigation from "@/components/navigation";
+import { useEffect, useState } from "react";
+import { Navigation } from "@/components/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LostPersonForm } from "@/components/lost-person/lost-person-form";
+import { LostPersonRecentList } from "@/components/lost-person/lost-person-recent-list";
+import {
+  createLostPersonReport,
+  fetchLostPersonReports,
+} from "@/lib/lostPersonApi";
+import { LostPersonGender, LostPersonReport } from "@/types/lostPerson";
+
+type LostPersonFormValues = {
+  fullName: string;
+  age: string;
+  gender: LostPersonGender;
+};
+
+const defaultFormValues: LostPersonFormValues = {
+  fullName: "",
+  age: "",
+  gender: "male",
+};
 
 export default function VolunteerDashboard() {
+  const [formData, setFormData] =
+    useState<LostPersonFormValues>(defaultFormValues);
+  const [reports, setReports] = useState<LostPersonReport[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const loadReports = async () => {
+    const data = await fetchLostPersonReports();
+    setReports(data);
+  };
+
+  useEffect(() => {
+    loadReports().catch(() => {
+      setMessage("Unable to load reports right now.");
+    });
+  }, []);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setMessage("");
+    setIsSubmitting(true);
+
+    try {
+      await createLostPersonReport({
+        fullName: formData.fullName,
+        age: Number(formData.age),
+        gender: formData.gender,
+      });
+
+      setFormData(defaultFormValues);
+      setMessage("Lost person report submitted successfully.");
+      await loadReports();
+    } catch {
+      setMessage("Failed to submit report. Please verify your inputs.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen">
-      <div className="px-8 py-8 max-w-7xl mx-auto">
-        <Navigation />
+    <div className="min-h-screen pb-10">
+      <Navigation />
 
-        <div className="grid grid-cols-3 gap-8">
-          <div className="col-span-1">
-            <Card className="h-96 rounded-3xl flex items-center justify-center p-8 shadow-2xl hover:shadow-2xl transition-shadow duration-300">
-              <h2 className="text-4xl font-bold text-white text-center">
-                Form for Missing Person
-              </h2>
-            </Card>
-          </div>
+      <div className="px-8 pt-24 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Card className="lg:col-span-1 rounded-3xl shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-2xl">Report Lost Person</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LostPersonForm
+              formData={formData}
+              isSubmitting={isSubmitting}
+              message={message}
+              onChange={setFormData}
+              onSubmit={handleSubmit}
+            />
+          </CardContent>
+        </Card>
 
-          <div className="col-span-2 space-y-8">
-            <Card className="rounded-3xl p-8 h-44 flex items-center justify-center shadow-2xl">
-              <h3 className="text-3xl font-bold text-white text-center">
-                Alert Acknowledgement Checklist
-              </h3>
-            </Card>
-
-            <Card className="rounded-3xl p-8 h-44 flex items-center justify-center shadow-2xl">
-              <h3 className="text-3xl font-bold text-white text-center">
-                Field Report form and Zone Updates
-              </h3>
-            </Card>
-          </div>
-        </div>
+        <Card className="lg:col-span-2 rounded-3xl shadow-2xl">
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Recent Lost Person Reports
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <LostPersonRecentList reports={reports} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
-
