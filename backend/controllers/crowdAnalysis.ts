@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { analyzeCrowdImage } from "../services/crowdAnalysisService";
+import { computeDensityLevel, computeStatus } from "../utils/crowdMetrics";
 
 type CrowdAnalysisRequestBody = {
   imageBase64?: string;
@@ -49,6 +50,26 @@ const handleControllerError = (res: Response, error: unknown) => {
   return res.status(statusCode).json({ message });
 };
 
+const buildResponse = (
+  count: number,
+  heatmap: string,
+  cameraId: string | null,
+  location: string | null,
+) => {
+  const densityLevel = computeDensityLevel(count);
+  const status = computeStatus(densityLevel);
+
+  return {
+    camera_id: cameraId,
+    location,
+    count,
+    density_level: densityLevel,
+    status,
+    heatmap,
+    timestamp: new Date().toISOString(),
+  };
+};
+
 export const analyzeUploadedImage = async (
   req: Request<unknown, unknown, CrowdAnalysisRequestBody>,
   res: Response,
@@ -66,13 +87,9 @@ export const analyzeUploadedImage = async (
       imagePayload.mimeType,
     );
 
-    return res.status(200).json({
-      ...result,
-      source: "upload",
-      cameraId: null,
-      location: null,
-      fileName: imagePayload.fileName,
-    });
+    return res
+      .status(200)
+      .json(buildResponse(result.count, result.heatmap, null, null));
   } catch (error) {
     return handleControllerError(res, error);
   }
@@ -95,13 +112,16 @@ export const analyzeCameraFrame = async (
       imagePayload.mimeType,
     );
 
-    return res.status(200).json({
-      ...result,
-      source: "camera",
-      cameraId: req.body.cameraId?.trim() || null,
-      location: req.body.location?.trim() || null,
-      fileName: imagePayload.fileName,
-    });
+    return res
+      .status(200)
+      .json(
+        buildResponse(
+          result.count,
+          result.heatmap,
+          req.body.cameraId?.trim() || null,
+          req.body.location?.trim() || null,
+        ),
+      );
   } catch (error) {
     return handleControllerError(res, error);
   }

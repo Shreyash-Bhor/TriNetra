@@ -1,9 +1,6 @@
-export type DensityLevel = "LOW" | "MEDIUM" | "HIGH";
-
-export type CrowdAnalysisResult = {
+export type CrowdInferenceResult = {
   count: number;
   heatmap: string;
-  densityLevel: DensityLevel;
 };
 
 const normalizeHeatmap = (heatmap: unknown): string => {
@@ -18,24 +15,11 @@ const normalizeHeatmap = (heatmap: unknown): string => {
   return `data:image/png;base64,${heatmap}`;
 };
 
-const normalizeDensityLevel = (densityLevel: unknown): DensityLevel => {
-  if (typeof densityLevel !== "string") {
-    throw new Error("Density level was missing from the ML service response");
-  }
-
-  const normalized = densityLevel.toUpperCase();
-  if (!["LOW", "MEDIUM", "HIGH"].includes(normalized)) {
-    throw new Error(`Unsupported density level received: ${densityLevel}`);
-  }
-
-  return normalized as DensityLevel;
-};
-
 export const analyzeCrowdImage = async (
   imageBuffer: Buffer,
   fileName: string,
   mimeType: string,
-): Promise<CrowdAnalysisResult> => {
+): Promise<CrowdInferenceResult> => {
   const serviceUrl =
     process.env.ML_SERVICE_URL ?? "http://127.0.0.1:8000/predict";
   const timeoutMs = Number(process.env.ML_SERVICE_TIMEOUT_MS ?? 10000);
@@ -59,14 +43,15 @@ export const analyzeCrowdImage = async (
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `ML service responded with ${response.status}${errorText ? `: ${errorText}` : ""}`,
+        `ML service responded with ${response.status}${
+          errorText ? `: ${errorText}` : ""
+        }`,
       );
     }
 
     const data = (await response.json()) as {
       count?: unknown;
       heatmap?: unknown;
-      density_level?: unknown;
     };
 
     if (typeof data.count !== "number" || Number.isNaN(data.count)) {
@@ -76,7 +61,6 @@ export const analyzeCrowdImage = async (
     return {
       count: data.count,
       heatmap: normalizeHeatmap(data.heatmap),
-      densityLevel: normalizeDensityLevel(data.density_level),
     };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {

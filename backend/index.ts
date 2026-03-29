@@ -9,6 +9,7 @@ import logoutRoute from "./routes/logoutRoute";
 import lostPersonRoutes from "./routes/lostPersonRoutes";
 import alertRoutes from "./routes/alertRoutes";
 import crowdRoutes from "./routes/crowdRoutes";
+import { cameraFeedSimulatorService } from "./services/cameraFeedSimulatorService";
 dotenv.config();
 const port = process.env.PORT;
 
@@ -52,6 +53,12 @@ app.use(
     });
   },
 );
-app.listen(port, () => {
+app.listen(port, async () => {
+  try {
+    await cameraFeedSimulatorService.start();
+  } catch (error) {
+    console.error("Failed to bootstrap camera feed simulation", error);
+  }
+
   console.log("Server running on port 5000");
 });
