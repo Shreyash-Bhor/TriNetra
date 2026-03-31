@@ -10,6 +10,7 @@ import { acknowledgeAlert, createAlert, fetchAlerts } from "@/lib/alertApi";
 import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
 import { LostPersonReport } from "@/types/lostPerson";
 import { SiteAlert } from "@/types/alert";
+import { CrowdDensityMapCard } from "@/components/dashboard/crowd-density-map-card";
 
 export default function AdminPage() {
   const [reports, setReports] = useState<LostPersonReport[]>([]);
@@ -124,6 +125,8 @@ export default function AdminPage() {
       </div>
 
       <div className="px-8 pt-8 max-w-7xl mx-auto grid grid-cols-1 gap-8">
+        <CrowdDensityMapCard />
+
         <Card className="rounded-3xl shadow-2xl">
           <CardHeader>
             <CardTitle className="text-2xl">Live Alerts</CardTitle>
