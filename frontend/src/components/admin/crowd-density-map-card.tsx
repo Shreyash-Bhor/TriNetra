@@ -1,6 +1,6 @@
 "use client";
 
-import { CrowdDensityMap } from "@/components/dashboard/crowd-density-map";
+import { CrowdDensityMap } from "@/components/admin/crowd-density-map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCrowdMapFeed } from "@/hooks/useCrowdMapFeed";
 
@@ -14,7 +14,8 @@ export function CrowdDensityMapCard() {
   } = useCrowdMapFeed();
 
   return (
-    <Card className="rounded-3xl shadow-2xl">
+    <Card className="glass-strong rounded-3xl border border-white/25 shadow-2xl shadow-black/10 dark:border-white/15">
+      {" "}
       <CardHeader>
         <CardTitle className="text-2xl">Live Crowd Density Map</CardTitle>
       </CardHeader>

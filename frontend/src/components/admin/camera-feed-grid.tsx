@@ -1,4 +1,4 @@
-import { CameraFeedRow } from "@/components/dashboard/camera-feed-row";
+import { CameraFeedRow } from "@/components/admin/camera-feed-row";
 import { CameraCrowdFeed } from "@/types/crowd";
 
 type CameraFeedGridProps = {

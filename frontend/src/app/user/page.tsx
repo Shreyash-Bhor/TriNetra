@@ -2,7 +2,7 @@ import { Navigation } from "@/components/navigation";
 import { WeatherCard } from "@/components/weather/weather-card";
 import { fetchAlerts } from "@/lib/alertApi";
 import { getCityWeather } from "@/lib/weather";
-import { CrowdDensityMapCard } from "@/components/dashboard/crowd-density-map-card";
+import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
 export default async function UserPage() {
   const { data: weather, error } = await getCityWeather();
   let alerts = [] as Awaited<ReturnType<typeof fetchAlerts>>;
