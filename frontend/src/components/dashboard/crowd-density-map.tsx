@@ -23,6 +23,24 @@ type LeafletLayerGroup = {
   clearLayers: () => void;
 };
 
+type LeafletMarker = {
+  addTo: (layer: LeafletMap | LeafletLayerGroup) => LeafletMarker;
+  bindPopup: (
+    content: string,
+    options?: { className?: string },
+  ) => LeafletMarker;
+  bindTooltip: (
+    content: string,
+    options?: {
+      direction?: "top" | "right" | "bottom" | "left" | "center";
+      offset?: [number, number];
+      className?: string;
+      opacity?: number;
+      sticky?: boolean;
+    },
+  ) => LeafletMarker;
+};
+
 type LeafletNamespace = {
   map: (
     element: HTMLElement,
@@ -35,11 +53,7 @@ type LeafletNamespace = {
   marker: (
     point: [number, number],
     options?: { icon?: unknown },
-  ) => {
-    addTo: (layer: LeafletMap | LeafletLayerGroup) => {
-      bindPopup: (content: string) => void;
-    };
-  };
+  ) => LeafletMarker;
   divIcon: (options: {
     className: string;
     html: string;
@@ -65,6 +79,24 @@ const densityColorMap: Record<string, string> = {
   MEDIUM: "#eab308",
   LOW: "#16a34a",
 };
+
+const MARKER_SIZE = 90;
+const MARKER_RADIUS = MARKER_SIZE / 2;
+
+const formatCard = (feed: CameraCrowdFeed, normalizedDensity: string) => `
+  <div style='min-width:170px;padding:10px 12px;border-radius:10px;border:1px solid rgba(148,163,184,0.5);background:#0f172a;color:#e2e8f0;'>
+    <div style='font-size:12px;opacity:0.75;margin-bottom:4px;'>${feed.camera_id}</div>
+    <div style='font-size:14px;font-weight:600;margin-bottom:8px;'>${feed.location}</div>
+    <div style='display:flex;justify-content:space-between;gap:12px;font-size:12px;'>
+      <span style='opacity:0.8;'>Density Level</span>
+      <strong>${normalizedDensity}</strong>
+    </div>
+    <div style='display:flex;justify-content:space-between;gap:12px;font-size:12px;margin-top:4px;'>
+      <span style='opacity:0.8;'>Status</span>
+      <strong>${feed.status.toUpperCase()}</strong>
+    </div>
+  </div>
+`;
 
 const loadLeafletAssets = async () => {
   if (typeof window === "undefined") {
@@ -182,20 +214,28 @@ export function CrowdDensityMap({ cameraFeeds }: CrowdDensityMapProps) {
     cameraFeeds.forEach((feed) => {
       const normalizedDensity = feed.density_level.toUpperCase();
       const color = densityColorMap[normalizedDensity] ?? "#64748b";
+      const cardHtml = formatCard(feed, normalizedDensity);
 
       const markerIcon = window.L?.divIcon({
         className: "crowd-density-marker",
-        html: `<span style='display:block;width:16px;height:16px;background:${color};border-radius:9999px;border:2px solid #fff;box-shadow:0 0 0 1px rgba(15,23,42,0.2);'></span>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+        html: `<span style='display:block;width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;background:${color}66;border-radius:9999px;border:2px solid ${color};box-shadow:0 4px 18px rgba(15,23,42,0.28);'></span>`,
+        iconSize: [MARKER_SIZE, MARKER_SIZE],
+        iconAnchor: [MARKER_RADIUS, MARKER_RADIUS],
       });
 
       if (markerLayerRef.current) {
         window.L?.marker([feed.latitude, feed.longitude], { icon: markerIcon })
           .addTo(markerLayerRef.current)
-          .bindPopup(
-            `<strong>${feed.camera_id}</strong><br/>${feed.location}<br/>Density: ${normalizedDensity}`,
-          );
+          .bindTooltip(cardHtml, {
+            direction: "top",
+            offset: [0, -18],
+            sticky: true,
+            opacity: 1,
+            className: "crowd-density-hover-card",
+          })
+          .bindPopup(cardHtml, {
+            className: "crowd-density-popup-card",
+          });
       }
     });
 
