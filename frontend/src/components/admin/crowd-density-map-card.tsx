@@ -14,26 +14,31 @@ export function CrowdDensityMapCard() {
   } = useCrowdMapFeed();
 
   return (
-    <Card className="glass-strong rounded-3xl border border-white/25 shadow-2xl shadow-black/10 dark:border-white/15">
-      {" "}
+    <Card
+      className="glass-strong rounded-3xl border border-white/25 shadow-2xl shadow-black/10 
+    transition-all duration-300 dark:border-white/15"
+    >
       <CardHeader>
         <CardTitle className="text-2xl">Live Crowd Density Map</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {isInitialLoading ? (
-          <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground transition-colors duration-300">
             Initializing map service and loading crowd coordinates...
           </div>
         ) : null}
 
         {!isInitialLoading && errorMessage ? (
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
+          <div
+            className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 
+          transition-colors duration-300 dark:text-amber-300"
+          >
             {errorMessage}
           </div>
         ) : null}
 
         {!isInitialLoading && cameraFeeds.length === 0 ? (
-          <div className="rounded-xl border p-4 text-sm text-muted-foreground">
+          <div className="rounded-xl border p-4 text-sm text-muted-foreground transition-colors duration-300">
             No coordinates available from the backend yet.
           </div>
         ) : null}
