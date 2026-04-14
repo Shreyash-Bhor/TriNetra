@@ -1,5 +1,5 @@
 export type AlertCreatedByRole = "admin" | "volunteer";
-export type AlertViewerRole = AlertCreatedByRole | "user";
+export type AlertViewerRole = AlertCreatedByRole;
 export type AlertStatus = "pending" | "active";
 
 export type SiteAlert = {
@@ -15,5 +15,4 @@ export type SiteAlert = {
 export type CreateAlertPayload = {
   title: string;
   message: string;
-  createdByRole: AlertCreatedByRole;
 };

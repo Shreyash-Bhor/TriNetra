@@ -28,6 +28,7 @@ import { fetchLostPersonReports } from "@/lib/lostPersonApi";
 import { SiteAlert } from "@/types/alert";
 import { CameraCrowdFeed } from "@/types/crowd";
 import { LostPersonReport } from "@/types/lostPerson";
+import { RoleGuard } from "@/components/auth/role-guard";
 
 const EXPECTED_CAMERAS = ["CAM_01", "CAM_02", "CAM_03"];
 
@@ -101,7 +102,6 @@ export default function AdminPage() {
       await createAlert({
         title: alertTitle,
         message: alertMessage,
-        createdByRole: "admin",
       });
       setAlertTitle("");
       setAlertMessage("");
@@ -133,191 +133,195 @@ export default function AdminPage() {
   }, [cameraFeeds]);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden pb-10">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.25),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.24),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.20),transparent_45%)]" />
+    <RoleGuard allowedRoles={["admin"]}>
+      <div className="relative min-h-screen overflow-x-hidden pb-10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.25),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.24),transparent_40%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.20),transparent_45%)]" />
 
-      <Navigation />
+        <Navigation />
 
-      <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pt-24 sm:px-8">
-        <Card className={glassCardClass}>
-          <CardHeader>
-            <CardTitle className="text-2xl sm:text-3xl">
-              Admin Command Center
-            </CardTitle>
-            <CardDescription>
-              Unified operations for alerts, crowd monitoring, and lost person
-              response.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
-              <p className="text-xs uppercase text-muted-foreground">
-                Pending Alerts
-              </p>
-              <p className="mt-2 text-3xl font-semibold">
-                {pendingAlerts.length}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
-              <p className="text-xs uppercase text-muted-foreground">
-                Active Alerts
-              </p>
-              <p className="mt-2 text-3xl font-semibold">
-                {activeAlerts.length}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
-              <p className="text-xs uppercase text-muted-foreground">
-                Tracked Cameras
-              </p>
-              <p className="mt-2 text-3xl font-semibold">
-                {cameraFeeds.length}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
-              <p className="text-xs uppercase text-muted-foreground">
-                Lost Person Reports
-              </p>
-              <p className="mt-2 text-3xl font-semibold">{reports.length}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pt-24 sm:px-8">
+          <Card className={glassCardClass}>
+            <CardHeader>
+              <CardTitle className="text-2xl sm:text-3xl">
+                Admin Command Center
+              </CardTitle>
+              <CardDescription>
+                Unified operations for alerts, crowd monitoring, and lost person
+                response.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
+                <p className="text-xs uppercase text-muted-foreground">
+                  Pending Alerts
+                </p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {pendingAlerts.length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
+                <p className="text-xs uppercase text-muted-foreground">
+                  Active Alerts
+                </p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {activeAlerts.length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
+                <p className="text-xs uppercase text-muted-foreground">
+                  Tracked Cameras
+                </p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {cameraFeeds.length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
+                <p className="text-xs uppercase text-muted-foreground">
+                  Lost Person Reports
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{reports.length}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-        <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <Card className={glassCardClass}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <BellRing className="h-5 w-5" /> Create Emergency Alert
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCreateAlert} className="space-y-4">
+                  <Input
+                    value={alertTitle}
+                    onChange={(event) => setAlertTitle(event.target.value)}
+                    placeholder="Alert title"
+                    className="border-white/30 bg-white/50 dark:border-white/15 dark:bg-black/20"
+                    required
+                  />
+                  <Input
+                    value={alertMessage}
+                    onChange={(event) => setAlertMessage(event.target.value)}
+                    placeholder="Alert message"
+                    className="border-white/30 bg-white/50 dark:border-white/15 dark:bg-black/20"
+                    required
+                  />
+                  <Button type="submit" className="w-full sm:w-auto">
+                    Publish Alert
+                  </Button>
+                </form>
+                {statusMessage ? (
+                  <p className="mt-3 text-sm">{statusMessage}</p>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card className={glassCardClass}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <AlertTriangle className="h-5 w-5" /> Pending Volunteer Alerts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {pendingAlerts.length === 0 ? <p>No pending alerts.</p> : null}
+                {pendingAlerts.map((alert) => (
+                  <div
+                    key={alert._id}
+                    className="space-y-3 rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
+                  >
+                    <div>
+                      <p className="font-semibold">{alert.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {alert.message}
+                      </p>
+                    </div>
+                    <Button onClick={() => handleAcknowledge(alert._id)}>
+                      Acknowledge & Publish
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </section>
+
           <Card className={glassCardClass}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
-                <BellRing className="h-5 w-5" /> Create Emergency Alert
+                <Camera className="h-5 w-5" /> Camera Crowd Monitoring
               </CardTitle>
+              <CardDescription>
+                Realtime simulation feed with density and status per camera.
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleCreateAlert} className="space-y-4">
-                <Input
-                  value={alertTitle}
-                  onChange={(event) => setAlertTitle(event.target.value)}
-                  placeholder="Alert title"
-                  className="border-white/30 bg-white/50 dark:border-white/15 dark:bg-black/20"
-                  required
-                />
-                <Input
-                  value={alertMessage}
-                  onChange={(event) => setAlertMessage(event.target.value)}
-                  placeholder="Alert message"
-                  className="border-white/30 bg-white/50 dark:border-white/15 dark:bg-black/20"
-                  required
-                />
-                <Button type="submit" className="w-full sm:w-auto">
-                  Publish Alert
-                </Button>
-              </form>
-              {statusMessage ? (
-                <p className="mt-3 text-sm">{statusMessage}</p>
+            <CardContent className="space-y-4">
+              {cameraError ? (
+                <p className="text-red-500">{cameraError}</p>
+              ) : null}
+
+              {!cameraError && cameraFeeds.length === 0 ? (
+                <p className="text-muted-foreground">
+                  Waiting for camera feed simulation data...
+                </p>
+              ) : null}
+
+              {!cameraError && cameraFeeds.length > 0 ? (
+                <>
+                  {!hasAllCameraRows ? (
+                    <p className="text-sm text-amber-600 dark:text-amber-400">
+                      Live feed is available, but not all 3 camera rows have
+                      been populated yet.
+                    </p>
+                  ) : null}
+                  <CameraFeedGrid cameraFeeds={cameraFeeds} />
+                </>
               ) : null}
             </CardContent>
           </Card>
 
-          <Card className={glassCardClass}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <AlertTriangle className="h-5 w-5" /> Pending Volunteer Alerts
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {pendingAlerts.length === 0 ? <p>No pending alerts.</p> : null}
-              {pendingAlerts.map((alert) => (
-                <div
-                  key={alert._id}
-                  className="space-y-3 rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
-                >
-                  <div>
+          <CrowdDensityMapCard />
+
+          <section className="grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <Card className={glassCardClass}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Activity className="h-5 w-5" /> Live Alerts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {activeAlerts.length === 0 ? <p>No active alerts.</p> : null}
+                {activeAlerts.map((alert) => (
+                  <div
+                    key={alert._id}
+                    className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
+                  >
                     <p className="font-semibold">{alert.title}</p>
                     <p className="text-sm text-muted-foreground">
                       {alert.message}
                     </p>
+                    <Badge className="mt-3" variant="secondary">
+                      <CheckCircle2 className="mr-1 h-3 w-3" /> Active
+                    </Badge>
                   </div>
-                  <Button onClick={() => handleAcknowledge(alert._id)}>
-                    Acknowledge & Publish
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
+                ))}
+              </CardContent>
+            </Card>
 
-        <Card className={glassCardClass}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Camera className="h-5 w-5" /> Camera Crowd Monitoring
-            </CardTitle>
-            <CardDescription>
-              Realtime simulation feed with density and status per camera.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {cameraError ? <p className="text-red-500">{cameraError}</p> : null}
-
-            {!cameraError && cameraFeeds.length === 0 ? (
-              <p className="text-muted-foreground">
-                Waiting for camera feed simulation data...
-              </p>
-            ) : null}
-
-            {!cameraError && cameraFeeds.length > 0 ? (
-              <>
-                {!hasAllCameraRows ? (
-                  <p className="text-sm text-amber-600 dark:text-amber-400">
-                    Live feed is available, but not all 3 camera rows have been
-                    populated yet.
-                  </p>
-                ) : null}
-                <CameraFeedGrid cameraFeeds={cameraFeeds} />
-              </>
-            ) : null}
-          </CardContent>
-        </Card>
-
-        <CrowdDensityMapCard />
-
-        <section className="grid grid-cols-1 gap-8 xl:grid-cols-2">
-          <Card className={glassCardClass}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Activity className="h-5 w-5" /> Live Alerts
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {activeAlerts.length === 0 ? <p>No active alerts.</p> : null}
-              {activeAlerts.map((alert) => (
-                <div
-                  key={alert._id}
-                  className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
-                >
-                  <p className="font-semibold">{alert.title}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {alert.message}
-                  </p>
-                  <Badge className="mt-3" variant="secondary">
-                    <CheckCircle2 className="mr-1 h-3 w-3" /> Active
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className={glassCardClass}>
-            <CardHeader>
-              <CardTitle className="text-2xl">Lost Person Reports</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {error ? (
-                <p className="text-red-500">{error}</p>
-              ) : (
-                <LostPersonDashboardTable reports={reports} />
-              )}
-            </CardContent>
-          </Card>
-        </section>
-      </main>
-    </div>
+            <Card className={glassCardClass}>
+              <CardHeader>
+                <CardTitle className="text-2xl">Lost Person Reports</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {error ? (
+                  <p className="text-red-500">{error}</p>
+                ) : (
+                  <LostPersonDashboardTable reports={reports} />
+                )}
+              </CardContent>
+            </Card>
+          </section>
+        </main>
+      </div>
+    </RoleGuard>
   );
 }

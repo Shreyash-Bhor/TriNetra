@@ -1,7 +1,10 @@
 "use client";
 
 import type React from "react";
-
+import api from "@/lib/axios";
+import { setAuthSession } from "@/lib/auth";
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,16 +17,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Github, Mail, Eye, EyeOff, Shield, Users, Brain } from "lucide-react";
+import { Github, Mail, Eye, EyeOff, Shield } from "lucide-react";
 
 export function SignUpForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     username: "",
     email: "",
+    phone: "",
+    role: "volunteer" as "admin" | "volunteer",
     password: "",
     confirmPassword: "",
   });
@@ -32,9 +40,41 @@ export function SignUpForm() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
+    setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.post("/auth/signup", {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        password: formData.password,
+      });
+
+      setAuthSession(response.data.accessToken, response.data.user.role);
+      router.push(
+        response.data.user.role === "admin" ? "/admin" : "/volunteer",
+      );
+    } catch (submitError: unknown) {
+      setError(
+        submitError instanceof AxiosError
+          ? (submitError.response?.data as { message?: string })?.message ||
+              "Signup failed"
+          : "Signup failed",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -119,7 +159,40 @@ export function SignUpForm() {
                 required
               />
             </div>
-
+            <div className="space-y-2">
+              <Label
+                htmlFor="phone"
+                className="text-sm font-medium text-foreground"
+              >
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                type="text"
+                placeholder="9876543210"
+                value={formData.phone}
+                onChange={(e) => handleInputChange("phone", e.target.value)}
+                className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="role"
+                className="text-sm font-medium text-foreground"
+              >
+                Role
+              </Label>
+              <select
+                id="role"
+                value={formData.role}
+                onChange={(e) => handleInputChange("role", e.target.value)}
+                className="flex h-10 w-full rounded-md border border-white/20 bg-background px-3 py-2 text-sm"
+              >
+                <option value="volunteer">Volunteer</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
             <div className="space-y-2">
               <Label
                 htmlFor="email"
@@ -210,10 +283,12 @@ export function SignUpForm() {
 
             <Button
               type="submit"
+              disabled={loading}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              Create Account
+              {loading ? "Creating..." : "Create Account"}
             </Button>
+            {error ? <p className="text-sm text-red-500">{error}</p> : null}
           </form>
 
           <div className="relative">
@@ -244,7 +319,7 @@ export function SignUpForm() {
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
               <a
-                href="#"
+                href="/login"
                 className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
               >
                 Sign In

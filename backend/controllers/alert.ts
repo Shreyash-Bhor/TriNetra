@@ -1,19 +1,26 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AlertModel } from "../models/Alert";
 import {
   alertViewerSchema,
   createAlertRequestSchema,
 } from "../schemas/alertSchema";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
-export const createAlert = async (req: Request, res: Response) => {
+export const createAlert = async (req: AuthRequest, res: Response) => {
   try {
     const payload = createAlertRequestSchema.parse(req.body);
+    const createdByRole = req.user?.role;
 
-    const status = payload.createdByRole === "admin" ? "active" : "pending";
+    if (!createdByRole) {
+      return res.status(401).json({ message: "Not Authenticated" });
+    }
+
+    const status = createdByRole === "admin" ? "active" : "pending";
     const acknowledgedAt = status === "active" ? new Date() : undefined;
 
     const alert = await AlertModel.create({
       ...payload,
+      createdByRole,
       status,
       acknowledgedAt,
     });
@@ -32,12 +39,13 @@ export const createAlert = async (req: Request, res: Response) => {
   }
 };
 
-export const getAlerts = async (req: Request, res: Response) => {
+export const getAlerts = async (req: AuthRequest, res: Response) => {
   try {
-    const viewer = alertViewerSchema.parse(req.query.viewer ?? "user");
+    const viewer = alertViewerSchema.parse(req.user?.role);
 
     const query = viewer === "admin" ? {} : { status: "active" };
     const alerts = await AlertModel.find(query).sort({ createdAt: -1 });
+
     return res.status(200).json(alerts);
   } catch (error: any) {
     if (error?.name === "ZodError") {
@@ -52,7 +60,7 @@ export const getAlerts = async (req: Request, res: Response) => {
   }
 };
 
-export const acknowledgeAlert = async (req: Request, res: Response) => {
+export const acknowledgeAlert = async (req: AuthRequest, res: Response) => {
   try {
     const alert = await AlertModel.findByIdAndUpdate(
       req.params.id,

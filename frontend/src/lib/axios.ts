@@ -3,6 +3,7 @@ import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
 } from "axios";
+import { clearAuthSession, getAccessToken } from "@/lib/auth";
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api";
 const api: AxiosInstance = axios.create({
@@ -16,8 +17,7 @@ const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = getAccessToken();
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,7 +32,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.warn("Unauthorized - Redirecting to login ...");
       if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
+        clearAuthSession();
         window.location.href = "/login";
       }
     }

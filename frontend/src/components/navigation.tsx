@@ -2,23 +2,36 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "next-themes";
+import { clearAuthSession, getCurrentRole, AppRole } from "@/lib/auth";
 
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "User", href: "/user" },
-  { label: "Volunteer", href: "/volunteer" },
-  { label: "Admin", href: "/admin" },
-];
+const navLinksByRole: Record<AppRole, { label: string; href: string }[]> = {
+  admin: [
+    { label: "Home", href: "/" },
+    { label: "User", href: "/user" },
+    { label: "Volunteer", href: "/volunteer" },
+    { label: "Admin", href: "/admin" },
+  ],
+  volunteer: [
+    { label: "Home", href: "/" },
+    { label: "User", href: "/user" },
+    { label: "Volunteer", href: "/volunteer" },
+  ],
+};
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [role, setRole] = useState<AppRole | null>(null);
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
+  const navLinks = role ? navLinksByRole[role] : [{ label: "Home", href: "/" }];
 
+  useEffect(() => {
+    setRole(getCurrentRole());
+  }, []);
   return (
     <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-white/45 backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-black/25">
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -62,7 +75,16 @@ export function Navigation() {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
-
+          <Button
+            variant="ghost"
+            onClick={() => {
+              clearAuthSession();
+              window.location.href = "/login";
+            }}
+            className="rounded-full border border-white/20 bg-white/40 px-4 text-xs transition-all duration-300 hover:scale-105 hover:bg-white/60 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+          >
+            Logout
+          </Button>
           <Button
             variant="ghost"
             size="icon"

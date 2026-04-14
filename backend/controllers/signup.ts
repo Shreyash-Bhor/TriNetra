@@ -26,7 +26,7 @@ export const signupApp = async (req: Request, res: Response) => {
       firstName,
       lastName,
       phone,
-      role: role || "user",
+      role: role || "volunteer",
     });
     const payload = {
       sub: user._id.toString(),

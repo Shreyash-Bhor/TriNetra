@@ -2,6 +2,8 @@
 
 import type React from "react";
 import api from "@/lib/axios";
+import { setAuthSession } from "@/lib/auth";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Github, Mail, Eye, EyeOff, Shield, Router } from "lucide-react";
+import { Github, Mail, Eye, EyeOff, Shield } from "lucide-react";
 
 interface LoginFormData {
   email: string;
@@ -42,12 +44,17 @@ export function LoginForm() {
 
     try {
       const response = await api.post("auth/login", formData);
-      localStorage.setItem("token", response.data.token);
+      setAuthSession(response.data.accessToken, response.data.user.role);
       console.log("Login Success:", response.data);
-      router.push("/dashboard");
-    } catch (error: any) {
+      router.push(
+        response.data.user.role === "admin" ? "/admin" : "/volunteer",
+      );
+    } catch (error: unknown) {
       const message =
-        error.response?.data?.message || "Login failed! Please try again";
+        error instanceof AxiosError
+          ? (error.response?.data as { message?: string })?.message ||
+            "Login failed! Please try again"
+          : "Login failed! Please try again";
       setError(message);
       console.error("Login error:", error);
     } finally {
@@ -139,10 +146,12 @@ export function LoginForm() {
             {/* Submit */}
             <Button
               type="submit"
+              disabled={loading}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
+            {error ? <p className="text-sm text-red-500">{error}</p> : null}
           </form>
 
           {/* Divider */}
@@ -176,7 +185,7 @@ export function LoginForm() {
             <p className="text-sm text-muted-foreground">
               Don’t have an account?{" "}
               <a
-                href="#"
+                href="/signup"
                 className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
               >
                 Create Account
