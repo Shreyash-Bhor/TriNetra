@@ -2,7 +2,13 @@
 
 import { PropsWithChildren, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AppRole, getAccessToken, getCurrentRole } from "@/lib/auth";
+import {
+  AppRole,
+  clearAuthSession,
+  getAccessToken,
+  getCurrentRole,
+  roleHomeRoute,
+} from "@/lib/auth";
 
 type RoleGuardProps = PropsWithChildren<{
   allowedRoles: AppRole[];
@@ -17,18 +23,26 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
     const role = getCurrentRole();
 
     if (!token || !role) {
+      clearAuthSession();
       router.replace("/login");
       return;
     }
 
     if (!allowedRoles.includes(role)) {
-      router.replace(role === "admin" ? "/admin" : "/volunteer");
+      router.replace(roleHomeRoute[role]);
       return;
     }
 
     setAllowed(true);
   }, [allowedRoles, router]);
 
-  if (!allowed) return null;
+  if (!allowed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
+        Validating session...
+      </div>
+    );
+  }
+
   return <>{children}</>;
 }

@@ -2,10 +2,13 @@
 
 import type React from "react";
 import api from "@/lib/axios";
-import { setAuthSession } from "@/lib/auth";
+import { roleHomeRoute, setAuthSession } from "@/lib/auth";
 import { AxiosError } from "axios";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AuthBrandHeader } from "@/components/auth/auth-brand-header";
+import { PasswordInput } from "@/components/auth/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,8 +19,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Github, Mail, Eye, EyeOff, Shield } from "lucide-react";
+
+type SignUpFormData = {
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  phone: string;
+  role: "admin" | "volunteer";
+  password: string;
+  confirmPassword: string;
+};
+
+const initialValues: SignUpFormData = {
+  firstName: "",
+  lastName: "",
+  username: "",
+  email: "",
+  phone: "",
+  role: "volunteer",
+  password: "",
+  confirmPassword: "",
+};
 
 export function SignUpForm() {
   const router = useRouter();
@@ -25,18 +48,10 @@ export function SignUpForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
-    email: "",
-    phone: "",
-    role: "volunteer" as "admin" | "volunteer",
-    password: "",
-    confirmPassword: "",
-  });
 
-  const handleInputChange = (field: string, value: string) => {
+  const [formData, setFormData] = useState<SignUpFormData>(initialValues);
+
+  const handleInputChange = (field: keyof SignUpFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -61,10 +76,9 @@ export function SignUpForm() {
         password: formData.password,
       });
 
-      setAuthSession(response.data.accessToken, response.data.user.role);
-      router.push(
-        response.data.user.role === "admin" ? "/admin" : "/volunteer",
-      );
+      const role = response.data.user.role as "admin" | "volunteer";
+      setAuthSession(response.data.accessToken, role);
+      router.push(roleHomeRoute[role]);
     } catch (submitError: unknown) {
       setError(
         submitError instanceof AxiosError
@@ -78,41 +92,30 @@ export function SignUpForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 backdrop-blur-sm border border-white/20 mb-4">
-          <Shield className="h-8 w-8 text-primary" />
-        </div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Trinetra</h1>
-        <p className="text-muted-foreground text-balance">
-          AI-Powered Crowd Management & Public Safety System
-        </p>
-      </div>
+    <div className="w-full max-w-xl mx-auto">
+      <AuthBrandHeader
+        title="Create your account"
+        subtitle="Join Trinetra to coordinate safety operations in real-time"
+      />
 
       <Card className="glass-strong shadow-2xl border-white/30">
         <CardHeader className="text-center pb-6">
           <CardTitle className="text-2xl font-bold text-foreground">
-            Create Account
+            Sign Up
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Join the future of public safety management
+            Provide accurate details to continue
           </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label
-                  htmlFor="firstName"
-                  className="text-sm font-medium text-foreground"
-                >
-                  First Name
-                </Label>
+                <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
                   type="text"
-                  placeholder="John"
                   value={formData.firstName}
                   onChange={(e) =>
                     handleInputChange("firstName", e.target.value)
@@ -122,16 +125,10 @@ export function SignUpForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label
-                  htmlFor="lastName"
-                  className="text-sm font-medium text-foreground"
-                >
-                  Last Name
-                </Label>
+                <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
                   type="text"
-                  placeholder="Doe"
                   value={formData.lastName}
                   onChange={(e) =>
                     handleInputChange("lastName", e.target.value)
@@ -141,69 +138,41 @@ export function SignUpForm() {
                 />
               </div>
             </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  autoComplete="username"
+                  value={formData.username}
+                  onChange={(e) =>
+                    handleInputChange("username", e.target.value)
+                  }
+                  className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
+                  required
+                />
+              </div>
+            </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="username"
-                className="text-sm font-medium text-foreground"
-              >
-                Username
-              </Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="johndoe"
-                value={formData.username}
-                onChange={(e) => handleInputChange("username", e.target.value)}
-                className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="phone"
-                className="text-sm font-medium text-foreground"
-              >
-                Phone
-              </Label>
-              <Input
-                id="phone"
-                type="text"
-                placeholder="9876543210"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="role"
-                className="text-sm font-medium text-foreground"
-              >
-                Role
-              </Label>
-              <select
-                id="role"
-                value={formData.role}
-                onChange={(e) => handleInputChange("role", e.target.value)}
-                className="flex h-10 w-full rounded-md border border-white/20 bg-background px-3 py-2 text-sm"
-              >
-                <option value="volunteer">Volunteer</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-sm font-medium text-foreground"
-              >
-                Email
-              </Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="john@example.com"
+                autoComplete="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
@@ -212,118 +181,61 @@ export function SignUpForm() {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium text-foreground"
+              <Label htmlFor="role">Role</Label>
+              <select
+                id="role"
+                value={formData.role}
+                onChange={(e) => handleInputChange("role", e.target.value)}
+                className="glass flex h-10 w-full rounded-md border border-white/20 px-3 py-2 text-sm"
               >
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  className="glass border-white/20 focus:border-primary/50 transition-all duration-200 pr-10"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </div>
+                <option value="volunteer">Volunteer</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="confirmPassword"
-                className="text-sm font-medium text-foreground"
-              >
-                Confirm Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    handleInputChange("confirmPassword", e.target.value)
-                  }
-                  className="glass border-white/20 focus:border-primary/50 transition-all duration-200 pr-10"
-                  required
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <PasswordInput
+                  id="password"
+                  value={formData.password}
+                  onChange={(value) => handleInputChange("password", value)}
+                  show={showPassword}
+                  onToggle={() => setShowPassword(!showPassword)}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </Button>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <PasswordInput
+                  id="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={(value) =>
+                    handleInputChange("confirmPassword", value)
+                  }
+                  show={showConfirmPassword}
+                  onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+                />
               </div>
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 transition-all duration-200"
             >
-              {loading ? "Creating..." : "Create Account"}
+              {loading ? "Creating account..." : "Create Account"}
             </Button>
             {error ? <p className="text-sm text-red-500">{error}</p> : null}
           </form>
 
-          <div className="relative">
-            <Separator className="bg-border/50" />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-sm text-muted-foreground">
-              or continue with
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant="outline"
-              className="glass border-white/20 hover:glass-strong transition-all duration-200 bg-transparent"
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              Google
-            </Button>
-            <Button
-              variant="outline"
-              className="glass border-white/20 hover:glass-strong transition-all duration-200 bg-transparent"
-            >
-              <Github className="h-4 w-4 mr-2" />
-              GitHub
-            </Button>
-          </div>
-
-          <div className="text-center pt-4">
+          <div className="text-center pt-2">
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <a
+              <Link
                 href="/login"
                 className="text-primary hover:text-primary/80 font-medium transition-colors duration-200"
               >
                 Sign In
-              </a>
+              </Link>
             </p>
           </div>
         </CardContent>
