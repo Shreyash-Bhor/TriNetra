@@ -48,7 +48,11 @@ export function LoginForm() {
       const response = await api.post("auth/login", formData);
       const role = response.data.user.role as "admin" | "volunteer";
 
-      setAuthSession(response.data.accessToken, role);
+      setAuthSession(
+        response.data.accessToken,
+        role,
+        response.data.user.username,
+      );
       router.push(roleHomeRoute[role]);
     } catch (requestError: unknown) {
       const message =
