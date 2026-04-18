@@ -41,6 +41,10 @@ type LeafletMarker = {
   ) => LeafletMarker;
 };
 
+type LeafletCircle = {
+  addTo: (layer: LeafletMap | LeafletLayerGroup) => LeafletCircle;
+};
+
 type LeafletNamespace = {
   map: (
     element: HTMLElement,
@@ -60,6 +64,16 @@ type LeafletNamespace = {
     iconSize: [number, number];
     iconAnchor: [number, number];
   }) => unknown;
+  circle: (
+    point: [number, number],
+    options: {
+      radius: number;
+      color: string;
+      weight: number;
+      fillColor: string;
+      fillOpacity: number;
+    },
+  ) => LeafletCircle;
   latLngBounds: (points: [number, number][]) => LeafletLatLngBounds;
   layerGroup: () => LeafletLayerGroup;
 };
@@ -82,21 +96,74 @@ const densityColorMap: Record<string, string> = {
 
 const MARKER_SIZE = 90;
 const MARKER_RADIUS = MARKER_SIZE / 2;
+const MARKER_GEO_RADIUS_IN_METERS = 80;
 
-const formatCard = (feed: CameraCrowdFeed, normalizedDensity: string) => `
-  <div style='min-width:170px;padding:10px 12px;border-radius:10px;border:1px solid rgba(148,163,184,0.5);background:#0f172a;color:#e2e8f0;'>
-    <div style='font-size:12px;opacity:0.75;margin-bottom:4px;'>${feed.camera_id}</div>
-    <div style='font-size:14px;font-weight:600;margin-bottom:8px;'>${feed.location}</div>
-    <div style='display:flex;justify-content:space-between;gap:12px;font-size:12px;'>
-      <span style='opacity:0.8;'>Density Level</span>
-      <strong>${normalizedDensity}</strong>
+const getDensityMeta = (normalizedDensity: string) => {
+  const color = densityColorMap[normalizedDensity] ?? "#64748b";
+  if (normalizedDensity === "HIGH") {
+    return {
+      color,
+      label: "Critical",
+      tone: "rgba(239,68,68,0.18)",
+    };
+  }
+
+  if (normalizedDensity === "MEDIUM") {
+    return {
+      color,
+      label: "Elevated",
+      tone: "rgba(234,179,8,0.18)",
+    };
+  }
+
+  return {
+    color,
+    label: "Stable",
+    tone: "rgba(34,197,94,0.18)",
+  };
+};
+
+const formatCard = (
+  feed: CameraCrowdFeed,
+  normalizedDensity: string,
+  color: string,
+  densityLabel: string,
+) => `
+  <div style='min-width:220px;padding:12px;border-radius:14px;border:1px solid rgba(148,163,184,0.24);background:linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.94));backdrop-filter:blur(5px);color:#e2e8f0;box-shadow:0 10px 30px rgba(2,6,23,0.5);'>
+    <div style='display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;'>
+      <div style='font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.75;'>${feed.camera_id}</div>
+      <span style='display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(148,163,184,0.35);border-radius:9999px;padding:3px 8px;font-size:10px;font-weight:600;background:rgba(15,23,42,0.45);'>
+        <span style='width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;'></span>
+        ${densityLabel}
+      </span>
     </div>
-    <div style='display:flex;justify-content:space-between;gap:12px;font-size:12px;margin-top:4px;'>
-      <span style='opacity:0.8;'>Status</span>
-      <strong>${feed.status.toUpperCase()}</strong>
+    <div style='font-size:15px;font-weight:700;line-height:1.3;margin-bottom:10px;'>${feed.location}</div>
+    <div style='display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:8px;border-radius:10px;background:rgba(15,23,42,0.5);border:1px solid rgba(148,163,184,0.2);'>
+      <span style='opacity:0.85;'>Density</span>
+      <strong style='color:${color};'>${normalizedDensity}</strong>
+    </div>
+    <div style='display:flex;justify-content:space-between;gap:12px;font-size:12px;margin-top:8px;padding:8px;border-radius:10px;background:rgba(15,23,42,0.5);border:1px solid rgba(148,163,184,0.2);'>
+      <span style='opacity:0.85;'>Status</span>
+      <strong style='text-transform:uppercase;'>${feed.status}</strong>
     </div>
   </div>
 `;
+const buildMarkerIcon = (
+  color: string,
+  accentTone: string,
+  normalizedDensity: string,
+) =>
+  window.L?.divIcon({
+    className: "crowd-density-marker",
+    html: `
+      <span style='position:relative;display:grid;place-items:center;width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:9999px;background:${accentTone};border:2px solid ${color};box-shadow:0 8px 22px rgba(15,23,42,0.36);'>
+        <span style='display:block;width:14px;height:14px;border-radius:9999px;background:${color};box-shadow:0 0 0 6px ${color}33;'></span>
+        <span style='position:absolute;bottom:16px;font-size:10px;font-weight:700;color:#f8fafc;letter-spacing:0.06em;'>${normalizedDensity}</span>
+      </span>
+    `,
+    iconSize: [MARKER_SIZE, MARKER_SIZE],
+    iconAnchor: [MARKER_RADIUS, MARKER_RADIUS],
+  });
 
 const loadLeafletAssets = async () => {
   if (typeof window === "undefined") {
@@ -213,17 +280,19 @@ export function CrowdDensityMap({ cameraFeeds }: CrowdDensityMapProps) {
 
     cameraFeeds.forEach((feed) => {
       const normalizedDensity = feed.density_level.toUpperCase();
-      const color = densityColorMap[normalizedDensity] ?? "#64748b";
-      const cardHtml = formatCard(feed, normalizedDensity);
-
-      const markerIcon = window.L?.divIcon({
-        className: "crowd-density-marker",
-        html: `<span style='display:block;width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;background:${color}66;border-radius:9999px;border:2px solid ${color};box-shadow:0 4px 18px rgba(15,23,42,0.28);'></span>`,
-        iconSize: [MARKER_SIZE, MARKER_SIZE],
-        iconAnchor: [MARKER_RADIUS, MARKER_RADIUS],
-      });
+      const { color, label, tone } = getDensityMeta(normalizedDensity);
+      const cardHtml = formatCard(feed, normalizedDensity, color, label);
+      const markerIcon = buildMarkerIcon(color, tone, normalizedDensity);
 
       if (markerLayerRef.current) {
+        window.L?.circle([feed.latitude, feed.longitude], {
+          radius: MARKER_GEO_RADIUS_IN_METERS,
+          color,
+          weight: 1,
+          fillColor: color,
+          fillOpacity: 0.1,
+        }).addTo(markerLayerRef.current);
+
         window.L?.marker([feed.latitude, feed.longitude], { icon: markerIcon })
           .addTo(markerLayerRef.current)
           .bindTooltip(cardHtml, {
