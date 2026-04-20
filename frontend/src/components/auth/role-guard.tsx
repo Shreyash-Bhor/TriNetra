@@ -7,6 +7,7 @@ import {
   clearAuthSession,
   getAccessToken,
   getCurrentRole,
+  restoreAuthSession,
   roleHomeRoute,
 } from "@/lib/auth";
 
@@ -19,21 +20,36 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    const token = getAccessToken();
-    const role = getCurrentRole();
+    const validateSession = async () => {
+      let token = getAccessToken();
+      let role = getCurrentRole();
 
-    if (!token || !role) {
-      clearAuthSession();
-      router.replace("/login");
-      return;
-    }
+      if (!token || !role) {
+        const restored = await restoreAuthSession();
+        if (!restored) {
+          clearAuthSession();
+          router.replace("/login");
+          return;
+        }
 
-    if (!allowedRoles.includes(role)) {
-      router.replace(roleHomeRoute[role]);
-      return;
-    }
+        token = getAccessToken();
+        role = getCurrentRole();
+      }
+      if (!token || !role) {
+        clearAuthSession();
+        router.replace("/login");
+        return;
+      }
 
-    setAllowed(true);
+      if (!allowedRoles.includes(role)) {
+        router.replace(roleHomeRoute[role]);
+        return;
+      }
+
+      setAllowed(true);
+    };
+
+    validateSession();
   }, [allowedRoles, router]);
 
   if (!allowed) {

@@ -88,3 +88,61 @@ export function getAuthenticatedHomeRoute() {
   const role = getCurrentRole();
   return role ? roleHomeRoute[role] : null;
 }
+type JwtPayload = {
+  role?: AppRole;
+  email?: string;
+};
+
+const parseJwtPayload = (token: string): JwtPayload | null => {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+
+    const decoded = JSON.parse(window.atob(payload)) as JwtPayload;
+    return decoded;
+  } catch {
+    return null;
+  }
+};
+
+export async function restoreAuthSession(): Promise<boolean> {
+  if (!isBrowser()) return false;
+
+  try {
+    const apiBaseUrl =
+      process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api";
+    const response = await window.fetch(`${apiBaseUrl}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      clearAuthSession();
+      return false;
+    }
+
+    const data = (await response.json()) as { accessToken?: string };
+    const accessToken = data.accessToken;
+    if (!accessToken) {
+      clearAuthSession();
+      return false;
+    }
+
+    const payload = parseJwtPayload(accessToken);
+    const role = payload?.role;
+    if (role !== "admin" && role !== "volunteer") {
+      clearAuthSession();
+      return false;
+    }
+
+    const fallbackUsername = payload?.email?.split("@")[0];
+    setAuthSession(accessToken, role, fallbackUsername);
+    return true;
+  } catch {
+    clearAuthSession();
+    return false;
+  }
+}

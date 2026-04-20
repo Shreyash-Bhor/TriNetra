@@ -23,7 +23,7 @@ export async function refresh(req: Request, res: Response) {
     if (!tokenDoc || !tokenDoc.isActive) {
       await RefreshToken.updateMany(
         { user: payload.sub },
-        { $set: { revokedAt: new Date() } }
+        { $set: { revokedAt: new Date() } },
       );
       return res
         .status(401)
@@ -31,7 +31,7 @@ export async function refresh(req: Request, res: Response) {
     }
 
     tokenDoc.revokedAt = new Date();
-    tokenDoc.save();
+    await tokenDoc.save();
 
     const newPayload = {
       sub: payload.sub,

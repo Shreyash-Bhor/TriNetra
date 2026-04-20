@@ -31,7 +31,7 @@ export function requireAuth(
 
     next();
   } catch (error: any) {
-    return res.status(500).json({ message: "Invalid or expired access token" });
+    return res.status(401).json({ message: "Invalid or expired access token" });
   }
 }
 
