@@ -23,12 +23,12 @@ type LeafletLayerGroup = {
   clearLayers: () => void;
 };
 
-type LeafletMarker = {
-  addTo: (layer: LeafletMap | LeafletLayerGroup) => LeafletMarker;
+type LeafletCircleMarker = {
+  addTo: (layer: LeafletMap | LeafletLayerGroup) => LeafletCircleMarker;
   bindPopup: (
     content: string,
     options?: { className?: string },
-  ) => LeafletMarker;
+  ) => LeafletCircleMarker;
   bindTooltip: (
     content: string,
     options?: {
@@ -38,33 +38,24 @@ type LeafletMarker = {
       opacity?: number;
       sticky?: boolean;
     },
-  ) => LeafletMarker;
-};
-
-type LeafletCircle = {
-  addTo: (layer: LeafletMap | LeafletLayerGroup) => LeafletCircle;
+  ) => LeafletCircleMarker;
 };
 
 type LeafletNamespace = {
   map: (
     element: HTMLElement,
-    options?: { zoomControl?: boolean },
+    options?: {
+      zoomControl?: boolean;
+      markerZoomAnimation?: boolean;
+      zoomAnimation?: boolean;
+      fadeAnimation?: boolean;
+    },
   ) => LeafletMap;
   tileLayer: (
     urlTemplate: string,
     options?: { attribution?: string },
   ) => { addTo: (map: LeafletMap) => void };
-  marker: (
-    point: [number, number],
-    options?: { icon?: unknown },
-  ) => LeafletMarker;
-  divIcon: (options: {
-    className: string;
-    html: string;
-    iconSize: [number, number];
-    iconAnchor: [number, number];
-  }) => unknown;
-  circle: (
+  circleMarker: (
     point: [number, number],
     options: {
       radius: number;
@@ -73,7 +64,7 @@ type LeafletNamespace = {
       fillColor: string;
       fillOpacity: number;
     },
-  ) => LeafletCircle;
+  ) => LeafletCircleMarker;
   latLngBounds: (points: [number, number][]) => LeafletLatLngBounds;
   layerGroup: () => LeafletLayerGroup;
 };
@@ -94,9 +85,7 @@ const densityColorMap: Record<string, string> = {
   LOW: "#16a34a",
 };
 
-const MARKER_SIZE = 90;
-const MARKER_RADIUS = MARKER_SIZE / 2;
-const MARKER_GEO_RADIUS_IN_METERS = 80;
+const FIXED_MARKER_RADIUS_IN_PIXELS = 14;
 
 const getDensityMeta = (normalizedDensity: string) => {
   const color = densityColorMap[normalizedDensity] ?? "#64748b";
@@ -148,27 +137,9 @@ const formatCard = (
     </div>
   </div>
 `;
-const buildMarkerIcon = (
-  color: string,
-  accentTone: string,
-  normalizedDensity: string,
-) =>
-  window.L?.divIcon({
-    className: "crowd-density-marker",
-    html: `
-      <span style='position:relative;display:grid;place-items:center;width:${MARKER_SIZE}px;height:${MARKER_SIZE}px;border-radius:9999px;background:${accentTone};border:2px solid ${color};box-shadow:0 8px 22px rgba(15,23,42,0.36);'>
-        <span style='display:block;width:14px;height:14px;border-radius:9999px;background:${color};box-shadow:0 0 0 6px ${color}33;'></span>
-        <span style='position:absolute;bottom:16px;font-size:10px;font-weight:700;color:#f8fafc;letter-spacing:0.06em;'>${normalizedDensity}</span>
-      </span>
-    `,
-    iconSize: [MARKER_SIZE, MARKER_SIZE],
-    iconAnchor: [MARKER_RADIUS, MARKER_RADIUS],
-  });
 
 const loadLeafletAssets = async () => {
-  if (typeof window === "undefined") {
-    return;
-  }
+  if (typeof window === "undefined") return;
 
   if (!document.querySelector("link[data-leaflet='true']")) {
     const stylesheet = document.createElement("link");
@@ -178,9 +149,7 @@ const loadLeafletAssets = async () => {
     document.head.appendChild(stylesheet);
   }
 
-  if (window.L) {
-    return;
-  }
+  if (window.L) return;
 
   await new Promise<void>((resolve, reject) => {
     const existingScript = document.querySelector<HTMLScriptElement>(
@@ -192,9 +161,7 @@ const loadLeafletAssets = async () => {
       existingScript.addEventListener(
         "error",
         () => reject(new Error("Leaflet script failed to load.")),
-        {
-          once: true,
-        },
+        { once: true },
       );
       return;
     }
@@ -227,9 +194,7 @@ export function CrowdDensityMap({ cameraFeeds }: CrowdDensityMapProps) {
     let isMounted = true;
 
     const initializeMap = async () => {
-      if (!mapElementRef.current) {
-        return;
-      }
+      if (!mapElementRef.current) return;
 
       try {
         await loadLeafletAssets();
@@ -243,12 +208,16 @@ export function CrowdDensityMap({ cameraFeeds }: CrowdDensityMapProps) {
           return;
         }
 
-        const map = window.L.map(mapElementRef.current, { zoomControl: true });
+        const map = window.L.map(mapElementRef.current, {
+          zoomControl: true,
+          markerZoomAnimation: true,
+          zoomAnimation: true,
+          fadeAnimation: true,
+        });
+
         window.L.tileLayer(
           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          {
-            attribution: "&copy; OpenStreetMap contributors",
-          },
+          { attribution: "&copy; OpenStreetMap contributors" },
         ).addTo(map);
 
         mapRef.current = map;
@@ -272,45 +241,36 @@ export function CrowdDensityMap({ cameraFeeds }: CrowdDensityMapProps) {
   }, []);
 
   useEffect(() => {
-    if (!window.L || !mapRef.current || !markerLayerRef.current) {
-      return;
-    }
+    if (!window.L || !mapRef.current || !markerLayerRef.current) return;
 
     markerLayerRef.current.clearLayers();
 
     cameraFeeds.forEach((feed) => {
       const normalizedDensity = feed.density_level.toUpperCase();
-      const { color, label, tone } = getDensityMeta(normalizedDensity);
+      const { color, label } = getDensityMeta(normalizedDensity);
       const cardHtml = formatCard(feed, normalizedDensity, color, label);
-      const markerIcon = buildMarkerIcon(color, tone, normalizedDensity);
 
-      if (markerLayerRef.current) {
-        window.L?.circle([feed.latitude, feed.longitude], {
-          radius: MARKER_GEO_RADIUS_IN_METERS,
-          color,
-          weight: 1,
-          fillColor: color,
-          fillOpacity: 0.1,
-        }).addTo(markerLayerRef.current);
-
-        window.L?.marker([feed.latitude, feed.longitude], { icon: markerIcon })
-          .addTo(markerLayerRef.current)
-          .bindTooltip(cardHtml, {
-            direction: "top",
-            offset: [0, -18],
-            sticky: true,
-            opacity: 1,
-            className: "crowd-density-hover-card",
-          })
-          .bindPopup(cardHtml, {
-            className: "crowd-density-popup-card",
-          });
-      }
+      window.L?.circleMarker([feed.latitude, feed.longitude], {
+        radius: FIXED_MARKER_RADIUS_IN_PIXELS,
+        color,
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.28,
+      })
+        .addTo(markerLayerRef.current!)
+        .bindTooltip(cardHtml, {
+          direction: "top",
+          offset: [0, -10],
+          sticky: true,
+          opacity: 1,
+          className: "crowd-density-hover-card",
+        })
+        .bindPopup(cardHtml, {
+          className: "crowd-density-popup-card",
+        });
     });
 
-    if (markerPoints.length === 0) {
-      return;
-    }
+    if (markerPoints.length === 0) return;
 
     const bounds = window.L.latLngBounds(markerPoints);
     if (bounds.isValid()) {
