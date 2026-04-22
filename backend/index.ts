@@ -39,7 +39,7 @@ connectDB();
 app.use(
   cors({
     origin: "http://localhost:3000", // or 192.168.10.4
-    credentials: true,
+    credentials: true
   })
 );
 
