@@ -7,6 +7,7 @@ import {
   BellRing,
   Camera,
   CheckCircle2,
+  ShieldX,
 } from "lucide-react";
 import { Navigation } from "@/components/navigation";
 import { CameraFeedGrid } from "@/components/admin/camera-feed-grid";
@@ -22,7 +23,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { acknowledgeAlert, createAlert, fetchAlerts } from "@/lib/alertApi";
+import {
+  acknowledgeAlert,
+  createAlert,
+  dismissAlert,
+  fetchAlerts,
+} from "@/lib/alertApi";
 import api from "@/lib/axios";
 import { fetchLostPersonReports } from "@/lib/lostPersonApi";
 import { SiteAlert } from "@/types/alert";
@@ -121,6 +127,16 @@ export default function AdminPage() {
       await loadAdminData();
     } catch {
       setStatusMessage("Failed to acknowledge alert.");
+    }
+  };
+  const handleDismiss = async (id: string) => {
+    setStatusMessage("");
+    try {
+      await dismissAlert(id);
+      setStatusMessage("Alert dismissed by admin.");
+      await loadAdminData();
+    } catch {
+      setStatusMessage("Failed to dismiss alert.");
     }
   };
 
@@ -293,15 +309,31 @@ export default function AdminPage() {
                 {activeAlerts.map((alert) => (
                   <div
                     key={alert._id}
-                    className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
+                    className="rounded-2xl border border-rose-200/60 bg-gradient-to-br from-rose-50/90 via-amber-50/70 to-white/80
+                     p-4 shadow-sm dark:border-rose-400/30 dark:from-rose-950/20 dark:via-black/30 dark:to-black/30"
                   >
-                    <p className="font-semibold">{alert.title}</p>
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-semibold">{alert.title}</p>
+                      <Badge className="shrink-0" variant="destructive">
+                        Live
+                      </Badge>
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       {alert.message}
                     </p>
                     <Badge className="mt-3" variant="secondary">
                       <CheckCircle2 className="mr-1 h-3 w-3" /> Active
                     </Badge>
+                    <div className="mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDismiss(alert._id)}
+                      >
+                        <ShieldX className="mr-1 h-4 w-4" />
+                        Dismiss Alert
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </CardContent>

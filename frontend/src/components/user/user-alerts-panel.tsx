@@ -1,5 +1,6 @@
 import { BellRing } from "lucide-react";
 import { SiteAlert } from "@/types/alert";
+import { Badge } from "@/components/ui/badge";
 
 type UserAlertsPanelProps = {
   alerts: SiteAlert[];
@@ -22,11 +23,19 @@ export function UserAlertsPanel({ alerts }: UserAlertsPanelProps) {
           {alerts.map((alert) => (
             <article
               key={alert._id}
-              className="rounded-2xl border border-white/35 bg-white/30 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/50 dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+              className="rounded-2xl border border-rose-200/60 bg-gradient-to-br from-rose-50/85 via-amber-50/70 to-white/90
+ p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md dark:border-rose-400/30 
+ dark:from-rose-950/20 dark:via-black/20 dark:to-black/30"
             >
-              <p className="font-semibold">{alert.title}</p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-semibold">{alert.title}</p>
+                <Badge variant="destructive">Live</Badge>
+              </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 {alert.message}
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground/90">
+                Broadcast at {new Date(alert.createdAt).toLocaleString()}
               </p>
             </article>
           ))}

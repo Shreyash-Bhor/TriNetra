@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export type AlertCreatedByRole = "admin" | "volunteer";
-export type AlertStatus = "pending" | "active";
+export type AlertStatus = "pending" | "active" | "dismissed";
 
 export interface IAlert extends Document {
   title: string;
@@ -9,6 +9,7 @@ export interface IAlert extends Document {
   createdByRole: AlertCreatedByRole;
   status: AlertStatus;
   acknowledgedAt?: Date;
+  dismissedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -37,10 +38,14 @@ const AlertSchema = new Schema<IAlert>(
     status: {
       type: String,
       required: true,
-      enum: ["pending", "active"],
+      enum: ["pending", "active", "dismissed"],
       default: "pending",
     },
     acknowledgedAt: {
+      type: Date,
+      required: false,
+    },
+    dismissedAt: {
       type: Date,
       required: false,
     },

@@ -1,5 +1,10 @@
 import express from "express";
-import { acknowledgeAlert, createAlert, getAlerts } from "../controllers/alert";
+import {
+  acknowledgeAlert,
+  createAlert,
+  getAlerts,
+  dismissAlert,
+} from "../controllers/alert";
 import { requireAuth, requireRole } from "../middlewares/authMiddleware";
 const router = express.Router();
 
@@ -11,5 +16,5 @@ router.patch(
   requireRole("admin"),
   acknowledgeAlert,
 );
-
+router.patch("/:id/dismiss", requireAuth, requireRole("admin"), dismissAlert);
 export default router;

@@ -1,6 +1,6 @@
 export type AlertCreatedByRole = "admin" | "volunteer";
 export type AlertViewerRole = AlertCreatedByRole;
-export type AlertStatus = "pending" | "active";
+export type AlertStatus = "pending" | "active" | "dismissed";
 
 export type SiteAlert = {
   _id: string;
@@ -9,6 +9,7 @@ export type SiteAlert = {
   createdByRole: AlertCreatedByRole;
   status: AlertStatus;
   acknowledgedAt?: string;
+  dismissedAt?: string;
   createdAt: string;
 };
 

@@ -21,3 +21,8 @@ export const acknowledgeAlert = async (id: string): Promise<SiteAlert> => {
   const response = await api.patch<SiteAlert>(`/alerts/${id}/acknowledge`);
   return response.data;
 };
+
+export const dismissAlert = async (id: string): Promise<SiteAlert> => {
+  const response = await api.patch<SiteAlert>(`/alerts/${id}/dismiss`);
+  return response.data;
+};

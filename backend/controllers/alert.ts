@@ -64,7 +64,7 @@ export const acknowledgeAlert = async (req: AuthRequest, res: Response) => {
   try {
     const alert = await AlertModel.findByIdAndUpdate(
       req.params.id,
-      { status: "active", acknowledgedAt: new Date() },
+      { status: "active", acknowledgedAt: new Date(), dismissedAt: undefined },
       { new: true },
     );
 
@@ -75,6 +75,25 @@ export const acknowledgeAlert = async (req: AuthRequest, res: Response) => {
     return res.status(200).json(alert);
   } catch (error) {
     console.error("Error while acknowledging alert", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const dismissAlert = async (req: AuthRequest, res: Response) => {
+  try {
+    const alert = await AlertModel.findByIdAndUpdate(
+      req.params.id,
+      { status: "dismissed", dismissedAt: new Date() },
+      { new: true },
+    );
+
+    if (!alert) {
+      return res.status(404).json({ message: "Alert not found" });
+    }
+
+    return res.status(200).json(alert);
+  } catch (error) {
+    console.error("Error while dismissing alert", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
