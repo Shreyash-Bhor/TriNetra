@@ -25,7 +25,6 @@ type SignUpFormData = {
   lastName: string;
   username: string;
   email: string;
-  phone: string;
   role: "admin" | "volunteer";
   password: string;
   confirmPassword: string;
@@ -36,7 +35,6 @@ const initialValues: SignUpFormData = {
   lastName: "",
   username: "",
   email: "",
-  phone: "",
   role: "volunteer",
   password: "",
   confirmPassword: "",
@@ -71,7 +69,6 @@ export function SignUpForm() {
         lastName: formData.lastName,
         username: formData.username,
         email: formData.email,
-        phone: formData.phone,
         role: formData.role,
         password: formData.password,
       });
@@ -158,16 +155,16 @@ export function SignUpForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
-                  required
-                />
+                <Label htmlFor="role">Role</Label>
+                <select
+                  id="role"
+                  value={formData.role}
+                  onChange={(e) => handleInputChange("role", e.target.value)}
+                  className="glass flex h-10 w-full rounded-md border border-white/20 px-3 py-2 text-sm"
+                >
+                  <option value="volunteer">Volunteer</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
             </div>
 
@@ -182,19 +179,6 @@ export function SignUpForm() {
                 className="glass border-white/20 focus:border-primary/50 transition-all duration-200"
                 required
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <select
-                id="role"
-                value={formData.role}
-                onChange={(e) => handleInputChange("role", e.target.value)}
-                className="glass flex h-10 w-full rounded-md border border-white/20 px-3 py-2 text-sm"
-              >
-                <option value="volunteer">Volunteer</option>
-                <option value="admin">Admin</option>
-              </select>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
