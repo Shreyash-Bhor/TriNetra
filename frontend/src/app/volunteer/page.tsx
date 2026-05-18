@@ -124,7 +124,7 @@ export default function VolunteerDashboard() {
   };
 
   return (
-    <RoleGuard allowedRoles={["volunteer", "admin"]}>
+    <RoleGuard allowedRoles={["volunteer"]}>
       <div className="min-h-screen pb-10">
         <Navigation />
 

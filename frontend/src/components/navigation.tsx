@@ -18,13 +18,10 @@ import { AuthActions } from "@/components/navigation/auth-actions";
 const navLinksByRole: Record<AppRole, { label: string; href: string }[]> = {
   admin: [
     { label: "Home", href: "/" },
-    { label: "User", href: "/user" },
-    { label: "Volunteer", href: "/volunteer" },
     { label: "Admin", href: "/admin" },
   ],
   volunteer: [
     { label: "Home", href: "/" },
-    { label: "User", href: "/user" },
     { label: "Volunteer", href: "/volunteer" },
   ],
 };
