@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Navigation } from "@/components/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LostPersonForm } from "@/components/lost-person/lost-person-form";
-import { LostPersonRecentList } from "@/components/lost-person/lost-person-recent-list";
+import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,8 @@ import { createAlert, fetchAlerts } from "@/lib/alertApi";
 import { LostPersonGender, LostPersonReport } from "@/types/lostPerson";
 import { SiteAlert } from "@/types/alert";
 import { RoleGuard } from "@/components/auth/role-guard";
+import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
+import { UserAlertsPanel } from "@/components/user/user-alerts-panel";
 
 type LostPersonFormValues = {
   fullName: string;
@@ -51,13 +53,32 @@ export default function VolunteerDashboard() {
   };
 
   useEffect(() => {
-    loadReports().catch(() => {
-      setMessage("Unable to load reports right now.");
-    });
+    let isMounted = true;
 
-    loadAlerts().catch(() => {
-      setAlertStatusMessage("Unable to load alerts right now.");
-    });
+    const refreshAll = async () => {
+      try {
+        const [reportsData, alertsData] = await Promise.all([
+          fetchLostPersonReports(),
+          fetchAlerts("volunteer"),
+        ]);
+
+        if (!isMounted) return;
+        setReports(reportsData);
+        setAlerts(alertsData);
+      } catch {
+        if (!isMounted) return;
+        setMessage("Unable to load reports right now.");
+        setAlertStatusMessage("Unable to load alerts right now.");
+      }
+    };
+
+    refreshAll();
+    const interval = setInterval(refreshAll, 6000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -130,9 +151,12 @@ export default function VolunteerDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <LostPersonRecentList reports={reports} />
+              <LostPersonDashboardTable reports={reports.slice(0, 8)} />{" "}
             </CardContent>
           </Card>
+        </div>
+        <div className="px-8 pt-8 max-w-7xl mx-auto">
+          <CrowdDensityMapCard />
         </div>
 
         <div className="px-8 pt-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -164,27 +188,7 @@ export default function VolunteerDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl shadow-2xl">
-            <CardHeader>
-              <CardTitle className="text-2xl">Active Site Alerts</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {alerts.length === 0 ? (
-                <p className="text-muted-foreground">No active alerts.</p>
-              ) : null}
-              {alerts.map((alert) => (
-                <div key={alert._id} className="rounded-xl border p-4">
-                  <p className="font-semibold">{alert.title}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {alert.message}
-                  </p>
-                  <p className="text-xs mt-2">
-                    Created by: {alert.createdByRole}
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          <UserAlertsPanel alerts={alerts} />
         </div>
       </div>
     </RoleGuard>
