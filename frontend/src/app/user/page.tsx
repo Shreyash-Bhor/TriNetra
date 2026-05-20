@@ -1,18 +1,27 @@
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
+import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
 import { Navigation } from "@/components/navigation";
 import { UserAlertsPanel } from "@/components/user/user-alerts-panel";
 import { UserHero } from "@/components/user/user-hero";
 import { UserWeatherPanel } from "@/components/user/user-weather-panel";
 import { fetchAlerts } from "@/lib/alertApi";
+import { fetchLostPersonReports } from "@/lib/lostPersonApi";
 import { getCityWeather } from "@/lib/weather";
 export default async function UserPage() {
   const { data: weather, error } = await getCityWeather();
   let alerts = [] as Awaited<ReturnType<typeof fetchAlerts>>;
+  let reports = [] as Awaited<ReturnType<typeof fetchLostPersonReports>>;
 
   try {
     alerts = await fetchAlerts("volunteer");
   } catch {
     alerts = [];
+  }
+
+  try {
+    reports = await fetchLostPersonReports();
+  } catch {
+    reports = [];
   }
 
   return (
@@ -31,6 +40,11 @@ export default async function UserPage() {
           <div className="transition-all duration-300">
             <CrowdDensityMapCard />
           </div>
+
+          <section className="rounded-3xl border border-white/30 bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+            <h2 className="mb-4 text-lg font-semibold">Lost Person Reports</h2>
+            <LostPersonDashboardTable reports={reports} />
+          </section>
         </div>
 
         <aside className="space-y-6">

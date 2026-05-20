@@ -30,7 +30,10 @@ import {
   fetchAlerts,
 } from "@/lib/alertApi";
 import api from "@/lib/axios";
-import { fetchLostPersonReports } from "@/lib/lostPersonApi";
+import {
+  dismissLostPersonReport,
+  fetchLostPersonReports,
+} from "@/lib/lostPersonApi";
 import { SiteAlert } from "@/types/alert";
 import { CameraCrowdFeed } from "@/types/crowd";
 import { LostPersonReport } from "@/types/lostPerson";
@@ -145,6 +148,14 @@ export default function AdminPage() {
     }
   };
 
+  const handleDismissReport = async (id: string) => {
+    try {
+      await dismissLostPersonReport(id);
+      await loadAdminData();
+    } catch {
+      setStatusMessage("Failed to update lost person report.");
+    }
+  };
   const pendingAlerts = alerts.filter((alert) => alert.status === "pending");
   const activeAlerts = alerts.filter((alert) => alert.status === "active");
 
@@ -352,7 +363,11 @@ export default function AdminPage() {
                 {error ? (
                   <p className="text-red-500">{error}</p>
                 ) : (
-                  <LostPersonDashboardTable reports={reports} />
+                  <LostPersonDashboardTable
+                    reports={reports}
+                    canDismiss
+                    onDismiss={handleDismissReport}
+                  />
                 )}
               </CardContent>
             </Card>

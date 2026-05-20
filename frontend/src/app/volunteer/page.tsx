@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   createLostPersonReport,
+  dismissLostPersonReport,
   fetchLostPersonReports,
 } from "@/lib/lostPersonApi";
 import { createAlert, fetchAlerts } from "@/lib/alertApi";
@@ -150,7 +151,14 @@ export default function VolunteerDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <LostPersonDashboardTable reports={reports.slice(0, 8)} />{" "}
+              <LostPersonDashboardTable
+                reports={reports}
+                canDismiss
+                onDismiss={async (id) => {
+                  await dismissLostPersonReport(id);
+                  await loadReports();
+                }}
+              />
             </CardContent>
           </Card>
         </div>

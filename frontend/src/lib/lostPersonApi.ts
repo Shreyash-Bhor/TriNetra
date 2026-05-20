@@ -15,3 +15,11 @@ export const createLostPersonReport = async (
   const response = await api.post<LostPersonReport>("/lost-persons", payload);
   return response.data;
 };
+export const dismissLostPersonReport = async (
+  id: string,
+): Promise<LostPersonReport> => {
+  const response = await api.patch<LostPersonReport>(
+    `/lost-persons/${id}/dismiss`,
+  );
+  return response.data;
+};

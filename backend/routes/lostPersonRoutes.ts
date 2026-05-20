@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createLostPersonReport,
+  dismissLostPersonReport,
   getLostPersonReports,
 } from "../controllers/lostPerson";
 import { requireAuth, requireRole } from "../middlewares/authMiddleware";
@@ -13,11 +14,12 @@ router.post(
   requireRole("volunteer", "admin"),
   createLostPersonReport,
 );
-router.get(
-  "/",
+router.get("/", requireAuth, getLostPersonReports);
+router.patch(
+  "/:id/dismiss",
   requireAuth,
   requireRole("volunteer", "admin"),
-  getLostPersonReports,
+  dismissLostPersonReport,
 );
 
 export default router;

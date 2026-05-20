@@ -5,6 +5,12 @@ export type LostPersonReport = {
   fullName: string;
   age: number;
   gender: LostPersonGender;
+  isDismissed: boolean;
+  dismissedAt?: string;
+  createdBy?: {
+    _id: string;
+    username: string;
+  };
   createdAt: string;
 };
 
