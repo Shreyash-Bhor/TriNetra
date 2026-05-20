@@ -1,19 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  Activity,
-  AlertTriangle,
-  BellRing,
-  Camera,
-  CheckCircle2,
-  ShieldX,
-} from "lucide-react";
+import { AlertTriangle, BellRing, Camera } from "lucide-react";
 import { Navigation } from "@/components/navigation";
 import { CameraFeedGrid } from "@/components/admin/camera-feed-grid";
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
 import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
-import { Badge } from "@/components/ui/badge";
+import { VolunteerLiveAlerts } from "@/components/volunteer/volunteer-live-alerts";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -137,7 +130,7 @@ export default function AdminPage() {
       setStatusMessage("Failed to acknowledge alert.");
     }
   };
-  const handleDismiss = async (id: string) => {
+  const handleDismissAlert = async (id: string) => {
     setStatusMessage("");
     try {
       await dismissAlert(id);
@@ -313,49 +306,16 @@ export default function AdminPage() {
 
           <CrowdDensityMapCard />
 
-          <section className="grid grid-cols-1 gap-8 xl:grid-cols-2">
-            <Card className={glassCardClass}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Activity className="h-5 w-5" /> Live Alerts
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {activeAlerts.length === 0 ? <p>No active alerts.</p> : null}
-                {activeAlerts.map((alert) => (
-                  <div
-                    key={alert._id}
-                    className="rounded-2xl border border-rose-200/60 bg-gradient-to-br from-rose-50/90 via-amber-50/70 to-white/80
-                     p-4 shadow-sm dark:border-rose-400/30 dark:from-rose-950/20 dark:via-black/30 dark:to-black/30"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="font-semibold">{alert.title}</p>
-                      <Badge className="shrink-0" variant="destructive">
-                        Live
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {alert.message}
-                    </p>
-                    <Badge className="mt-3" variant="secondary">
-                      <CheckCircle2 className="mr-1 h-3 w-3" /> Active
-                    </Badge>
-                    <div className="mt-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDismiss(alert._id)}
-                      >
-                        <ShieldX className="mr-1 h-4 w-4" />
-                        Dismiss Alert
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+          <section className="grid grid-cols-1 items-start gap-8 xl:grid-cols-12">
+            <div className="xl:col-span-4">
+              <VolunteerLiveAlerts
+                alerts={activeAlerts}
+                canDismiss
+                onDismiss={handleDismissAlert}
+              />
+            </div>
 
-            <Card className={glassCardClass}>
+            <Card className={`xl:col-span-8 ${glassCardClass}`}>
               <CardHeader>
                 <CardTitle className="text-2xl">Lost Person Reports</CardTitle>
               </CardHeader>
