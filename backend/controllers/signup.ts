@@ -11,7 +11,8 @@ import { ENV } from "../config/constants";
 export const signupApp = async (req: Request, res: Response) => {
   try {
     const data = registerUserSchema.parse(req.body);
-    const { username, email, password, firstName, lastName, role } = data;
+    const { username, email, password, firstName, lastName, role, location } =
+      data;
     const user_mail = await UserModel.findOne({ email });
     if (user_mail) {
       return res.status(401).json({ message: "Mail Already exist" });
@@ -24,6 +25,7 @@ export const signupApp = async (req: Request, res: Response) => {
       firstName,
       lastName,
       role: role || "volunteer",
+      location: role === "volunteer" ? location : undefined,
     });
     const payload = {
       sub: user._id.toString(),
@@ -50,6 +52,7 @@ export const signupApp = async (req: Request, res: Response) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        location: user.location ?? null,
       },
     });
   } catch (error: any) {

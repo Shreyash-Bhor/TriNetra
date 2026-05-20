@@ -7,6 +7,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   role: "admin" | "volunteer";
+  location?: "Ramkund" | "Kalaram_Temple" | "Panchavati_Market";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,8 +52,13 @@ const UserSchema = new Schema<IUser>(
       required: true,
       default: "volunteer",
     },
+    location: {
+      type: String,
+      enum: ["Ramkund", "Kalaram_Temple", "Panchavati_Market"],
+      required: false,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const UserModel = mongoose.model<IUser>("User", UserSchema);

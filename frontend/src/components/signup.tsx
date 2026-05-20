@@ -19,6 +19,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+const volunteerLocations = [
+  "Ramkund",
+  "Kalaram_Temple",
+  "Panchavati_Market",
+] as const;
+
+type VolunteerLocation = (typeof volunteerLocations)[number];
 
 type SignUpFormData = {
   firstName: string;
@@ -26,6 +33,7 @@ type SignUpFormData = {
   username: string;
   email: string;
   role: "admin" | "volunteer";
+  location: VolunteerLocation;
   password: string;
   confirmPassword: string;
 };
@@ -36,6 +44,7 @@ const initialValues: SignUpFormData = {
   username: "",
   email: "",
   role: "volunteer",
+  location: "Ramkund",
   password: "",
   confirmPassword: "",
 };
@@ -70,6 +79,7 @@ export function SignUpForm() {
         username: formData.username,
         email: formData.email,
         role: formData.role,
+        location: formData.role === "volunteer" ? formData.location : undefined,
         password: formData.password,
       });
 
@@ -166,6 +176,28 @@ export function SignUpForm() {
                   <option value="admin">Admin</option>
                 </select>
               </div>
+              {formData.role === "volunteer" ? (
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="location">Preferred Location</Label>
+                  <select
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "location",
+                        e.target.value as VolunteerLocation,
+                      )
+                    }
+                    className="glass flex h-10 w-full rounded-md border border-white/20 px-3 py-2 text-sm"
+                  >
+                    {volunteerLocations.map((location) => (
+                      <option key={location} value={location}>
+                        {location}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-2">

@@ -30,6 +30,11 @@ import {
 import { SiteAlert } from "@/types/alert";
 import { CameraCrowdFeed } from "@/types/crowd";
 import { LostPersonReport } from "@/types/lostPerson";
+type RegisteredVolunteer = {
+  _id: string;
+  username: string;
+  location?: string;
+};
 import { RoleGuard } from "@/components/auth/role-guard";
 
 const EXPECTED_CAMERAS = ["CAM_01", "CAM_02", "CAM_03"];
@@ -53,15 +58,18 @@ export default function AdminPage() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
+  const [volunteers, setVolunteers] = useState<RegisteredVolunteer[]>([]);
 
   const loadAdminData = async () => {
-    const [lostPersonData, alertData] = await Promise.all([
+    const [lostPersonData, alertData, volunteerData] = await Promise.all([
       fetchLostPersonReports(),
       fetchAlerts("admin"),
+      api.get<{ volunteers: RegisteredVolunteer[] }>("/auth/volunteers"),
     ]);
 
     setReports(lostPersonData);
     setAlerts(alertData);
+    setVolunteers(volunteerData.data.volunteers);
   };
 
   useEffect(() => {
@@ -206,6 +214,42 @@ export default function AdminPage() {
                 </p>
                 <p className="mt-2 text-3xl font-semibold">{reports.length}</p>
               </div>
+              <div className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5">
+                <p className="text-xs uppercase text-muted-foreground">
+                  Registered Volunteers
+                </p>
+                <p className="mt-2 text-3xl font-semibold">
+                  {volunteers.length}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={glassCardClass}>
+            <CardHeader>
+              <CardTitle className="text-2xl">Registered Volunteers</CardTitle>
+              <CardDescription>
+                Latest volunteer signups with selected operating location.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {volunteers.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No volunteers registered yet.
+                </p>
+              ) : (
+                volunteers.map((volunteer) => (
+                  <div
+                    key={volunteer._id}
+                    className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
+                  >
+                    <p className="font-semibold">{volunteer.username}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Location: {volunteer.location ?? "Not selected"}
+                    </p>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
 
