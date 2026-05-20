@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Shield, Users, Brain } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Shield, Users, Brain } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -34,19 +34,10 @@ export function HeroSection() {
           </h1>
 
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto text-pretty">
-            Revolutionary AI technology that transforms crowd management and public safety. Real-time analytics,
-            predictive insights, and automated responses for safer events and venues.
+            Revolutionary AI technology that transforms crowd management and
+            public safety. Real-time analytics, predictive insights, and
+            automated responses for safer events and venues.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="glass-strong hover:bg-primary/90 transition-all duration-300 group">
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button variant="outline" size="lg" className="glass border-border/50 hover:bg-card/80 bg-transparent">
-              Watch Demo
-            </Button>
-          </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -75,5 +66,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

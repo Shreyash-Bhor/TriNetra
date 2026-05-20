@@ -88,6 +88,24 @@ export function getAuthenticatedHomeRoute() {
   const role = getCurrentRole();
   return role ? roleHomeRoute[role] : null;
 }
+export async function logoutUser() {
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api";
+
+  try {
+    await window.fetch(`${apiBaseUrl}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch {
+    // Intentionally ignore network failures; local auth state is still cleared.
+  } finally {
+    clearAuthSession();
+  }
+}
 type JwtPayload = {
   role?: AppRole;
   email?: string;

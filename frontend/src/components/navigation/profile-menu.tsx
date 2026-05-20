@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LogOut, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { AuthUser, clearAuthSession } from "@/lib/auth";
+import { AuthUser, logoutUser } from "@/lib/auth";
 
 interface ProfileMenuProps {
   user: AuthUser;
@@ -77,9 +77,9 @@ export function ProfileMenu({ user }: ProfileMenuProps) {
 
           <Button
             variant="outline"
-            onClick={() => {
-              clearAuthSession();
-              window.location.href = "/login";
+            onClick={async () => {
+              await logoutUser();
+              window.location.href = "/";
             }}
             className="mt-4 w-full justify-center rounded-xl border-white/20 bg-white/50 text-xs hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
           >

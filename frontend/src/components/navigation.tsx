@@ -26,7 +26,10 @@ const navLinksByRole: Record<AppRole, { label: string; href: string }[]> = {
   ],
 };
 
-const defaultNavLinks = [{ label: "Home", href: "/" }];
+const defaultNavLinks = [
+  { label: "Home", href: "/" },
+  { label: "Public Safety", href: "/user" },
+];
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);

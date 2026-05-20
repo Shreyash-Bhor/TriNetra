@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Star } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Star } from "lucide-react";
 
 const testimonials = [
   {
@@ -30,7 +30,7 @@ const testimonials = [
     avatar: "/professional-woman-doctor.png",
     rating: 5,
   },
-]
+];
 
 export function TestimonialsSection() {
   return (
@@ -43,23 +43,35 @@ export function TestimonialsSection() {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
-            See what industry leaders are saying about Trinetra's impact on their operations.
+            See what industry leaders are saying about Trinetra&apos;s impact on
+            their operations.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="glass border-border/50 hover:bg-card/80 transition-all duration-300">
+            <Card
+              key={index}
+              className="glass border-border/50 hover:bg-card/80 transition-all duration-300"
+            >
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                    <Star
+                      key={i}
+                      className="h-4 w-4 fill-primary text-primary"
+                    />
                   ))}
                 </div>
-                <p className="text-muted-foreground mb-6 text-pretty">"{testimonial.content}"</p>
+                <p className="text-muted-foreground mb-6 text-pretty">
+                  &ldquo;{testimonial.content}&rdquo;
+                </p>{" "}
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={testimonial.avatar || "/placeholder.svg"} alt={testimonial.name} />
+                    <AvatarImage
+                      src={testimonial.avatar || "/placeholder.svg"}
+                      alt={testimonial.name}
+                    />
                     <AvatarFallback>
                       {testimonial.name
                         .split(" ")
@@ -80,5 +92,5 @@ export function TestimonialsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
