@@ -16,8 +16,7 @@ import { LostPersonGender, LostPersonReport } from "@/types/lostPerson";
 import { SiteAlert } from "@/types/alert";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
-import { UserAlertsPanel } from "@/components/user/user-alerts-panel";
-
+import { VolunteerLiveAlerts } from "@/components/volunteer/volunteer-live-alerts";
 type LostPersonFormValues = {
   fullName: string;
   age: string;
@@ -187,8 +186,7 @@ export default function VolunteerDashboard() {
               </form>
             </CardContent>
           </Card>
-
-          <UserAlertsPanel alerts={alerts} />
+          <VolunteerLiveAlerts alerts={alerts} />{" "}
         </div>
       </div>
     </RoleGuard>
