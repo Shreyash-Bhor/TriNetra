@@ -4,7 +4,7 @@ import { ENV } from "../config/constants";
 export interface TokenPayload {
   sub: string;
   email?: string;
-  role: "admin" | "volunteer" | "user";
+  role: "admin" | "volunteer";
 }
 
 export function signAccessToken(payload: TokenPayload): string {

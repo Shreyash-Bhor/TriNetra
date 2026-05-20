@@ -16,7 +16,7 @@ export const signupApp = async (req: Request, res: Response) => {
       data;
     const user_mail = await UserModel.findOne({ email });
     if (user_mail) {
-      return Response.json({ message: "Mail Already exist" }, { status: 401 });
+      return res.status(401).json({ message: "Mail Already exist" });
     }
     const hashedpass = await bcrypt.hash(password, 10);
     const user = new UserModel({
@@ -26,7 +26,7 @@ export const signupApp = async (req: Request, res: Response) => {
       firstName,
       lastName,
       phone,
-      role: role || "user",
+      role: role || "volunteer",
     });
     const payload = {
       sub: user._id.toString(),
