@@ -7,9 +7,9 @@ type CameraFeedRowProps = {
 };
 
 const densityClassMap: Record<CameraCrowdFeed["density_level"], string> = {
-  low: "text-emerald-500",
-  medium: "text-amber-500",
-  high: "text-red-500",
+  low: "text-emerald-300",
+  medium: "text-amber-300",
+  high: "text-rose-300",
 };
 
 const statusVariantMap: Record<
@@ -22,54 +22,59 @@ const statusVariantMap: Record<
 };
 
 export function CameraFeedRow({ cameraFeed }: CameraFeedRowProps) {
+  const normalizedCount = Math.round(cameraFeed.count);
+
   return (
-    <div className="grid gap-4 rounded-2xl border bg-card p-4 lg:grid-cols-[minmax(260px,320px)_1fr]">
-      <div className="overflow-hidden rounded-xl border bg-muted/20">
+    <div className="group relative overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-slate-900/90 via-slate-900/70 to-indigo-950/80 p-4 text-white shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-indigo-500/30">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-36 w-36 rounded-full bg-fuchsia-500/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-cyan-400/20 blur-3xl" />
+
+      <div className="relative aspect-video max-h-44 overflow-hidden rounded-xl border border-white/15 bg-black/20">
         <Image
           src={cameraFeed.heatmap}
           alt={`${cameraFeed.camera_id} heatmap`}
-          className="h-full w-full object-cover"
-          width={640}
-          height={360}
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           unoptimized
         />
       </div>
 
-      <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="relative mt-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-base font-semibold">{cameraFeed.camera_id}</p>
           <Badge variant={statusVariantMap[cameraFeed.status]}>
             {cameraFeed.status.toUpperCase()}
           </Badge>
-          <Badge variant="outline">{cameraFeed.location}</Badge>
         </div>
+        <Badge variant="outline" className="border-white/40 text-white">
+          {cameraFeed.location}
+        </Badge>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border p-3">
-            <p className="text-xs uppercase text-muted-foreground">Count</p>
-            <p className="text-2xl font-semibold">{cameraFeed.count}</p>
-          </div>
-          <div className="rounded-xl border p-3">
-            <p className="text-xs uppercase text-muted-foreground">
-              Density Level
+          <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+            <p className="text-xs uppercase text-white/70">Count</p>
+            <p className="text-3xl font-bold tracking-wide text-cyan-300">
+              {normalizedCount}
             </p>
+          </div>
+          <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+            <p className="text-xs uppercase text-white/70">Density Level</p>
             <p
-              className={`text-2xl font-semibold uppercase ${densityClassMap[cameraFeed.density_level]}`}
+              className={`text-2xl font-semibold uppercase ${densityClassMap[cameraFeed.density_level]} drop-shadow-sm`}
             >
               {cameraFeed.density_level}
             </p>
           </div>
-          <div className="rounded-xl border p-3">
-            <p className="text-xs uppercase text-muted-foreground">
-              Coordinates
-            </p>
+          <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+            <p className="text-xs uppercase text-white/70">Coordinates</p>
             <p className="text-sm font-medium">
               {cameraFeed.latitude.toFixed(4)},{" "}
               {cameraFeed.longitude.toFixed(4)}
             </p>
           </div>
-          <div className="rounded-xl border p-3">
-            <p className="text-xs uppercase text-muted-foreground">Updated</p>
+          <div className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-sm">
+            <p className="text-xs uppercase text-white/70">Updated</p>
             <p className="text-sm font-medium">
               {new Date(cameraFeed.timestamp).toLocaleString()}
             </p>

@@ -82,7 +82,12 @@ export default function AdminPage() {
         const response = await fetchLatestCameraFeed();
         if (!isMounted) return;
 
-        setCameraFeeds(response.data);
+        setCameraFeeds(
+          response.data.map((feed) => ({
+            ...feed,
+            count: Math.round(feed.count),
+          })),
+        );
         setCameraError("");
       } catch {
         if (isMounted) {
