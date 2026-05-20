@@ -11,7 +11,6 @@ export const registerUserSchema = z.object({
     .regex(/[@,#,$,%,^,&,*,!]/, "Must contain one symbol"),
   firstName: z.string().trim().max(10),
   lastName: z.string().trim().max(10),
-  phone: z.string().regex(/^[0-9]{10}$/, "Must be 10 digits"),
   role: z.enum(["admin", "volunteer"]).default("volunteer"),
 });
 

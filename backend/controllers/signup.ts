@@ -1,4 +1,3 @@
-import express from "express";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { registerUserSchema } from "../schemas/registerUserSchema";
@@ -12,8 +11,7 @@ import { ENV } from "../config/constants";
 export const signupApp = async (req: Request, res: Response) => {
   try {
     const data = registerUserSchema.parse(req.body);
-    const { username, email, password, firstName, lastName, phone, role } =
-      data;
+    const { username, email, password, firstName, lastName, role } = data;
     const user_mail = await UserModel.findOne({ email });
     if (user_mail) {
       return res.status(401).json({ message: "Mail Already exist" });
@@ -25,7 +23,6 @@ export const signupApp = async (req: Request, res: Response) => {
       password: hashedpass,
       firstName,
       lastName,
-      phone,
       role: role || "volunteer",
     });
     const payload = {
