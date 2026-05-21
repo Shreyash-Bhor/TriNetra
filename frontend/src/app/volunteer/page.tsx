@@ -13,9 +13,10 @@ import {
   fetchLostPersonReports,
 } from "@/lib/lostPersonApi";
 import { createAlert, fetchAlerts } from "@/lib/alertApi";
-import { LostPersonGender, LostPersonReport } from "@/types/lostPerson";
-import { SiteAlert } from "@/types/alert";
+import { LostPersonGender } from "@/types/lostPerson";
 import { RoleGuard } from "@/components/auth/role-guard";
+import { publishRealtimeUpdate } from "@/lib/realtime";
+import { useLiveResource } from "@/hooks/use-live-resource";
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
 import { VolunteerLiveAlerts } from "@/components/volunteer/volunteer-live-alerts";
 type LostPersonFormValues = {
@@ -33,53 +34,29 @@ const defaultFormValues: LostPersonFormValues = {
 export default function VolunteerDashboard() {
   const [formData, setFormData] =
     useState<LostPersonFormValues>(defaultFormValues);
-  const [reports, setReports] = useState<LostPersonReport[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
 
-  const [alerts, setAlerts] = useState<SiteAlert[]>([]);
   const [alertTitle, setAlertTitle] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertStatusMessage, setAlertStatusMessage] = useState("");
 
-  const loadReports = async () => {
-    const data = await fetchLostPersonReports();
-    setReports(data);
-  };
+  const { data: reportsData, refresh: loadReports } = useLiveResource({
+    topic: "lost-person-reports",
+    fetcher: fetchLostPersonReports,
+    pollingMs: 5000,
+    onError: () => setMessage("Unable to load reports right now."),
+  });
 
-  const loadAlerts = async () => {
-    const data = await fetchAlerts("volunteer");
-    setAlerts(data);
-  };
+  const { data: alertsData, refresh: loadAlerts } = useLiveResource({
+    topic: "alerts",
+    fetcher: () => fetchAlerts("volunteer"),
+    pollingMs: 5000,
+    onError: () => setAlertStatusMessage("Unable to load alerts right now."),
+  });
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const refreshAll = async () => {
-      try {
-        const [reportsData, alertsData] = await Promise.all([
-          fetchLostPersonReports(),
-          fetchAlerts("volunteer"),
-        ]);
-
-        if (!isMounted) return;
-        setReports(reportsData);
-        setAlerts(alertsData);
-      } catch {
-        if (!isMounted) return;
-        setMessage("Unable to load reports right now.");
-        setAlertStatusMessage("Unable to load alerts right now.");
-      }
-    };
-
-    refreshAll();
-    const interval = setInterval(refreshAll, 6000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-    };
-  }, []);
+  const reports = reportsData ?? [];
+  const alerts = alertsData ?? [];
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -96,6 +73,7 @@ export default function VolunteerDashboard() {
       setFormData(defaultFormValues);
       setMessage("Lost person report submitted successfully.");
       await loadReports();
+      publishRealtimeUpdate("lost-person-reports");
     } catch {
       setMessage("Failed to submit report. Please verify your inputs.");
     } finally {
@@ -118,6 +96,7 @@ export default function VolunteerDashboard() {
         "Alert sent to admin. It will be visible after admin acknowledgement.",
       );
       await loadAlerts();
+      publishRealtimeUpdate("alerts");
     } catch {
       setAlertStatusMessage("Failed to create alert. Check your inputs.");
     }
@@ -157,6 +136,7 @@ export default function VolunteerDashboard() {
                 onDismiss={async (id) => {
                   await dismissLostPersonReport(id);
                   await loadReports();
+                  publishRealtimeUpdate("lost-person-reports");
                 }}
               />
             </CardContent>

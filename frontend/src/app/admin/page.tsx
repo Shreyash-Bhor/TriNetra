@@ -27,15 +27,15 @@ import {
   dismissLostPersonReport,
   fetchLostPersonReports,
 } from "@/lib/lostPersonApi";
-import { SiteAlert } from "@/types/alert";
 import { CameraCrowdFeed } from "@/types/crowd";
-import { LostPersonReport } from "@/types/lostPerson";
 type RegisteredVolunteer = {
   _id: string;
   username: string;
   location?: string;
 };
 import { RoleGuard } from "@/components/auth/role-guard";
+import { publishRealtimeUpdate, subscribeRealtimeUpdate } from "@/lib/realtime";
+import { useLiveResource } from "@/hooks/use-live-resource";
 
 const EXPECTED_CAMERAS = ["CAM_01", "CAM_02", "CAM_03"];
 
@@ -50,15 +50,12 @@ const glassCardClass =
   "glass-strong rounded-3xl border border-white/25 shadow-2xl shadow-black/10 dark:border-white/15";
 
 export default function AdminPage() {
-  const [reports, setReports] = useState<LostPersonReport[]>([]);
-  const [alerts, setAlerts] = useState<SiteAlert[]>([]);
   const [cameraFeeds, setCameraFeeds] = useState<CameraCrowdFeed[]>([]);
   const [error, setError] = useState("");
   const [cameraError, setCameraError] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
-  const [volunteers, setVolunteers] = useState<RegisteredVolunteer[]>([]);
 
   const loadAdminData = async () => {
     const [lostPersonData, alertData, volunteerData] = await Promise.all([
@@ -67,16 +64,42 @@ export default function AdminPage() {
       api.get<{ volunteers: RegisteredVolunteer[] }>("/auth/volunteers"),
     ]);
 
-    setReports(lostPersonData);
-    setAlerts(alertData);
-    setVolunteers(volunteerData.data.volunteers);
+    return {
+      reports: lostPersonData,
+      alerts: alertData,
+      volunteers: volunteerData.data.volunteers,
+    };
   };
-
+  const { data: adminData, refresh: refreshAdminData } = useLiveResource({
+    topic: "alerts",
+    fetcher: loadAdminData,
+    pollingMs: 5000,
+    onError: () => setError("Could not load admin dashboard data."),
+  });
   useEffect(() => {
-    loadAdminData().catch(() => {
-      setError("Could not load admin dashboard data.");
-    });
-  }, []);
+    const refreshReports = () => {
+      refreshAdminData().catch(() =>
+        setError("Could not load admin dashboard data."),
+      );
+    };
+
+    const unsubscribe = [
+      ["lost-person-reports", refreshReports],
+      ["volunteers", refreshReports],
+    ] as const;
+
+    const disposers = unsubscribe.map(([topic, handler]) =>
+      subscribeRealtimeUpdate(topic, handler),
+    );
+
+    return () => {
+      disposers.forEach((dispose: () => void) => dispose());
+    };
+  }, [refreshAdminData]);
+
+  const reports = adminData?.reports ?? [];
+  const alerts = adminData?.alerts ?? [];
+  const volunteers = adminData?.volunteers ?? [];
 
   useEffect(() => {
     let isMounted = true;
@@ -121,7 +144,8 @@ export default function AdminPage() {
       setAlertTitle("");
       setAlertMessage("");
       setStatusMessage("Alert created and published to all pages.");
-      await loadAdminData();
+      await refreshAdminData();
+      publishRealtimeUpdate("alerts");
     } catch {
       setStatusMessage("Failed to create alert.");
     }
@@ -133,7 +157,8 @@ export default function AdminPage() {
     try {
       await acknowledgeAlert(id);
       setStatusMessage("Alert acknowledged and published.");
-      await loadAdminData();
+      await refreshAdminData();
+      publishRealtimeUpdate("alerts");
     } catch {
       setStatusMessage("Failed to acknowledge alert.");
     }
@@ -143,7 +168,8 @@ export default function AdminPage() {
     try {
       await dismissAlert(id);
       setStatusMessage("Alert dismissed by admin.");
-      await loadAdminData();
+      await refreshAdminData();
+      publishRealtimeUpdate("alerts");
     } catch {
       setStatusMessage("Failed to dismiss alert.");
     }
@@ -152,7 +178,8 @@ export default function AdminPage() {
   const handleDismissReport = async (id: string) => {
     try {
       await dismissLostPersonReport(id);
-      await loadAdminData();
+      await refreshAdminData();
+      publishRealtimeUpdate("alerts");
     } catch {
       setStatusMessage("Failed to update lost person report.");
     }

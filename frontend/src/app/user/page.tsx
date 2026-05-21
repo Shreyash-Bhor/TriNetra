@@ -1,9 +1,8 @@
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
-import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
 import { Navigation } from "@/components/navigation";
-import { VolunteerLiveAlerts } from "@/components/volunteer/volunteer-live-alerts";
 import { UserHero } from "@/components/user/user-hero";
 import { UserWeatherPanel } from "@/components/user/user-weather-panel";
+import { UserLivePanels } from "@/components/user/user-live-panels";
 import { fetchAlerts } from "@/lib/alertApi";
 import { fetchLostPersonReports } from "@/lib/lostPersonApi";
 import { getCityWeather } from "@/lib/weather";
@@ -36,14 +35,10 @@ export default async function UserPage() {
       <main className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 pt-24 sm:px-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <UserHero />
-          <VolunteerLiveAlerts alerts={alerts} />{" "}
+          <UserLivePanels initialAlerts={alerts} initialReports={reports} />
           <div className="transition-all duration-300">
             <CrowdDensityMapCard />
           </div>
-          <section className="rounded-3xl border border-white/30 bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-            <h2 className="mb-4 text-lg font-semibold">Lost Person Reports</h2>
-            <LostPersonDashboardTable reports={reports} />
-          </section>
         </div>
 
         <aside className="space-y-6">
