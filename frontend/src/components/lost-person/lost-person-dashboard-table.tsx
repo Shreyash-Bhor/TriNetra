@@ -16,15 +16,27 @@ export function LostPersonDashboardTable({
   onDismiss,
 }: LostPersonDashboardTableProps) {
   const [view, setView] = useState<"active" | "completed">("active");
+  const [locationFilter, setLocationFilter] = useState("all");
   const [dismissingId, setDismissingId] = useState<string | null>(null);
-
-  const filteredReports = useMemo(
-    () =>
-      reports.filter((report) =>
-        view === "active" ? !report.isDismissed : report.isDismissed,
+  const locationOptions = useMemo(() => {
+    const uniqueLocations = Array.from(
+      new Set(
+        reports.map((report) => report.createdBy?.location).filter(Boolean),
       ),
-    [reports, view],
-  );
+    ) as string[];
+    return ["all", ...uniqueLocations.sort((a, b) => a.localeCompare(b))];
+  }, [reports]);
+
+  const filteredReports = useMemo(() => {
+    return reports.filter((report) => {
+      const viewMatches =
+        view === "active" ? !report.isDismissed : report.isDismissed;
+      const locationMatches =
+        locationFilter === "all" ||
+        report.createdBy?.location === locationFilter;
+      return viewMatches && locationMatches;
+    });
+  }, [locationFilter, reports, view]);
 
   const handleDismiss = async (id: string) => {
     if (!onDismiss) return;
@@ -60,18 +72,38 @@ export function LostPersonDashboardTable({
           Completed Reports
         </button>
       </div>
-
+      <div className="max-w-xs">
+        <label
+          htmlFor="report-location-filter"
+          className="mb-1 block text-sm text-muted-foreground"
+        >
+          Filter by volunteer location
+        </label>
+        <select
+          id="report-location-filter"
+          value={locationFilter}
+          onChange={(event) => setLocationFilter(event.target.value)}
+          className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+        >
+          {locationOptions.map((location) => (
+            <option key={location} value={location}>
+              {location === "all" ? "All locations" : location}
+            </option>
+          ))}
+        </select>
+      </div>
       {filteredReports.length === 0 ? (
         <p className="text-muted-foreground">No {view} reports available.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-white/20 bg-white/30 backdrop-blur dark:border-white/10 dark:bg-white/5">
+        <div className="max-h-[420px] overflow-auto rounded-2xl border border-white/20 bg-white/30 backdrop-blur dark:border-white/10 dark:bg-white/5">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/20 dark:border-white/10">
                 <th className="px-4 py-3">Full Name</th>
-                <th className="px-4 py-3">Age</th>
+                <th className="px-4 py-3">Date of Birth</th>
                 <th className="px-4 py-3">Gender</th>
                 <th className="px-4 py-3">Created By</th>
+                <th className="px-4 py-3">Location</th>
                 <th className="px-4 py-3">Reported At</th>
                 {canDismiss ? <th className="px-4 py-3">Action</th> : null}
               </tr>
@@ -83,10 +115,15 @@ export function LostPersonDashboardTable({
                   className="border-b border-white/15 last:border-0 dark:border-white/10"
                 >
                   <td className="px-4 py-3 font-medium">{report.fullName}</td>
-                  <td className="px-4 py-3">{report.age}</td>
+                  <td className="px-4 py-3">
+                    {new Date(report.dateOfBirth).toLocaleDateString()}
+                  </td>
                   <td className="px-4 py-3 capitalize">{report.gender}</td>
                   <td className="px-4 py-3">
                     {report.createdBy?.username ?? "Unknown"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {report.createdBy?.location ?? "Unknown"}
                   </td>
                   <td className="px-4 py-3">
                     {new Date(report.createdAt).toLocaleString()}

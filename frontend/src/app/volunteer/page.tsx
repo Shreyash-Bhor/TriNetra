@@ -21,13 +21,13 @@ import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
 
 type LostPersonFormValues = {
   fullName: string;
-  age: string;
+  dateOfBirth: string;
   gender: LostPersonGender;
 };
 
 const defaultFormValues: LostPersonFormValues = {
   fullName: "",
-  age: "",
+  dateOfBirth: "",
   gender: "male",
 };
 
@@ -58,7 +58,7 @@ export default function VolunteerDashboard() {
     try {
       await createLostPersonReport({
         fullName: formData.fullName,
-        age: Number(formData.age),
+        dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
       });
 

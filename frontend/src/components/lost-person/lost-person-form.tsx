@@ -6,7 +6,7 @@ import { LostPersonGender } from "@/types/lostPerson";
 
 type LostPersonFormValues = {
   fullName: string;
-  age: string;
+  dateOfBirth: string;
   gender: LostPersonGender;
 };
 
@@ -42,17 +42,15 @@ export function LostPersonForm({
       </div>
 
       <div>
-        <label htmlFor="age" className="block text-sm mb-1">
-          Age
+        <label htmlFor="dateOfBirth" className="block text-sm mb-1">
+          Date of Birth
         </label>
         <Input
-          id="age"
-          type="number"
-          min={0}
-          max={120}
-          value={formData.age}
+          id="dateOfBirth"
+          type="date"
+          value={formData.dateOfBirth}
           onChange={(event) =>
-            onChange({ ...formData, age: event.target.value })
+            onChange({ ...formData, dateOfBirth: event.target.value })
           }
           required
         />

@@ -37,7 +37,7 @@ export const getLostPersonReports = async (_req: Request, res: Response) => {
   try {
     const reports = await LostPersonReportModel.find()
       .sort({ createdAt: -1 })
-      .populate("createdBy", "username")
+      .populate("createdBy", "username location")
       .populate("dismissedBy", "username");
     return res.status(200).json(reports);
   } catch (error) {
@@ -75,7 +75,7 @@ export const dismissLostPersonReport = async (
     await report.save();
 
     const hydratedReport = await LostPersonReportModel.findById(report._id)
-      .populate("createdBy", "username")
+      .populate("createdBy", "username location")
       .populate("dismissedBy", "username");
 
     return res.status(200).json(hydratedReport);

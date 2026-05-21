@@ -15,7 +15,8 @@ export function LostPersonRecentList({ reports }: LostPersonRecentListProps) {
         <div key={report._id} className="rounded-md border p-3">
           <p className="font-semibold">{report.fullName}</p>
           <p className="text-sm text-muted-foreground">
-            Age: {report.age} • Gender: {report.gender}
+            DOB: {new Date(report.dateOfBirth).toLocaleDateString()} • Gender:{" "}
+            {report.gender}{" "}
           </p>
         </div>
       ))}
