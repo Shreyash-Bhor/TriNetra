@@ -29,6 +29,7 @@ router.get(
   requireRole("volunteer", "admin"),
   getLatestSimulatedCameraFeed,
 );
+router.get("/simulation/public-latest", getLatestSimulatedCameraFeed);
 router.get(
   "/simulation/health",
   requireAuth,

@@ -15,7 +15,7 @@ export const getCrowdMapRefreshMs = () => {
 
 export const fetchLatestCameraFeed = async (): Promise<CameraCrowdFeed[]> => {
   const response = await api.get<LatestCameraFeedResponse>(
-    "/crowd/simulation/latest",
+    "/crowd/simulation/public-latest",
   );
 
   return response.data.data;
