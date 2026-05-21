@@ -15,7 +15,6 @@ type AlertsMenuProps = {
 
 export function AlertsMenu({ role }: AlertsMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const canLoadAlerts = Boolean(role);
   const fetcherRole = role === "admin" ? "admin" : "volunteer";
 
   const { data: alertsData, refresh } = useLiveResource({
@@ -25,21 +24,18 @@ export function AlertsMenu({ role }: AlertsMenuProps) {
   });
 
   const visibleAlerts = useMemo(() => {
-    if (!canLoadAlerts) return [];
     const alerts = alertsData ?? [];
     if (role === "admin") {
       return alerts;
     }
     return alerts.filter((alert) => alert.status === "active");
-  }, [alertsData, canLoadAlerts, role]);
+  }, [alertsData, role]);
 
   const handleDismiss = async (id: string) => {
     await dismissAlert(id);
     await refresh();
     publishRealtimeUpdate("alerts");
   };
-
-  if (!canLoadAlerts) return null;
 
   return (
     <div className="relative">

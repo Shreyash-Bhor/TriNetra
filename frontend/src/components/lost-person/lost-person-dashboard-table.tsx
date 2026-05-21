@@ -3,6 +3,51 @@
 import { useMemo, useState } from "react";
 import { LostPersonReport } from "@/types/lostPerson";
 import { Button } from "@/components/ui/button";
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+});
+
+const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "UTC",
+});
+
+const parseDateValue = (value: string) => {
+  if (!value) return null;
+
+  const normalized = value.trim();
+  if (!normalized) return null;
+
+  const directDate = new Date(normalized);
+  if (!Number.isNaN(directDate.getTime())) {
+    return directDate;
+  }
+
+  const slashMatch = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slashMatch) {
+    const [, day, month, year] = slashMatch;
+    const slashDate = new Date(
+      Date.UTC(Number(year), Number(month) - 1, Number(day)),
+    );
+
+    if (!Number.isNaN(slashDate.getTime())) {
+      return slashDate;
+    }
+  }
+
+  return null;
+};
+
+const formatDate = (value: string) => {
+  const parsed = parseDateValue(value);
+  return parsed ? dateFormatter.format(parsed) : "Unknown";
+};
+
+const formatDateTime = (value: string) => {
+  const parsed = parseDateValue(value);
+  return parsed ? dateTimeFormatter.format(parsed) : "Unknown";
+};
 
 type LostPersonDashboardTableProps = {
   reports: LostPersonReport[];
@@ -116,7 +161,7 @@ export function LostPersonDashboardTable({
                 >
                   <td className="px-4 py-3 font-medium">{report.fullName}</td>
                   <td className="px-4 py-3">
-                    {new Date(report.dateOfBirth).toLocaleDateString()}
+                    {formatDate(report.dateOfBirth)}{" "}
                   </td>
                   <td className="px-4 py-3 capitalize">{report.gender}</td>
                   <td className="px-4 py-3">
@@ -126,7 +171,7 @@ export function LostPersonDashboardTable({
                     {report.createdBy?.location ?? "Unknown"}
                   </td>
                   <td className="px-4 py-3">
-                    {new Date(report.createdAt).toLocaleString()}
+                    {formatDateTime(report.createdAt)}{" "}
                   </td>
                   {canDismiss ? (
                     <td className="px-4 py-3">
