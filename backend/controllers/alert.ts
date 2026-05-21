@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 import { AlertModel } from "../models/Alert";
 import {
   alertViewerSchema,
@@ -39,11 +39,15 @@ export const createAlert = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getAlerts = async (req: AuthRequest, res: Response) => {
+export const getAlerts = async (req: Request, res: Response) => {
   try {
-    const viewer = alertViewerSchema.parse(req.user?.role);
+    const requestedViewer =
+      typeof req.query.viewer === "string" ? req.query.viewer : undefined;
+    const viewer = alertViewerSchema.safeParse(requestedViewer);
 
-    const query = viewer === "admin" ? {} : { status: "active" };
+    const resolvedViewer = viewer.success ? viewer.data : "volunteer";
+
+    const query = resolvedViewer === "admin" ? {} : { status: "active" };
     const alerts = await AlertModel.find(query).sort({ createdAt: -1 });
 
     return res.status(200).json(alerts);

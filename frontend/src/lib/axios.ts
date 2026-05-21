@@ -4,7 +4,7 @@ import axios, {
   AxiosResponse,
   AxiosError,
 } from "axios";
-import { clearAuthSession, getAccessToken } from "@/lib/auth";
+import { clearAuthSession, getAccessToken, getCurrentRole } from "@/lib/auth";
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000/api";
 const api: AxiosInstance = axios.create({
@@ -80,8 +80,11 @@ api.interceptors.response.use(
     if (isUnauthorized) {
       console.warn("Unauthorized - Redirecting to login ...");
       if (typeof window !== "undefined") {
-        clearAuthSession();
-        window.location.href = "/login";
+        const hasSession = Boolean(getAccessToken() && getCurrentRole());
+        if (hasSession) {
+          clearAuthSession();
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);

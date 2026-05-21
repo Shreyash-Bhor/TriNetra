@@ -9,7 +9,7 @@ import { requireAuth, requireRole } from "../middlewares/authMiddleware";
 const router = express.Router();
 
 router.post("/", requireAuth, requireRole("volunteer", "admin"), createAlert);
-router.get("/", requireAuth, requireRole("volunteer", "admin"), getAlerts);
+router.get("/", getAlerts);
 router.patch(
   "/:id/acknowledge",
   requireAuth,

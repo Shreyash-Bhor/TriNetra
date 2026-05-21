@@ -14,7 +14,7 @@ router.post(
   requireRole("volunteer", "admin"),
   createLostPersonReport,
 );
-router.get("/", requireAuth, getLostPersonReports);
+router.get("/", getLostPersonReports);
 router.patch(
   "/:id/dismiss",
   requireAuth,
