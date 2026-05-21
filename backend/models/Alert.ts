@@ -10,6 +10,8 @@ export interface IAlert extends Document {
   status: AlertStatus;
   acknowledgedAt?: Date;
   dismissedAt?: Date;
+  sourceCameraId?: string;
+  sourceLocation?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +50,20 @@ const AlertSchema = new Schema<IAlert>(
     dismissedAt: {
       type: Date,
       required: false,
+    },
+    sourceCameraId: {
+      type: String,
+      required: false,
+      trim: true,
+      index: true,
+      unique: true,
+      sparse: true,
+    },
+    sourceLocation: {
+      type: String,
+      required: false,
+      trim: true,
+      maxlength: 120,
     },
   },
   { timestamps: true },

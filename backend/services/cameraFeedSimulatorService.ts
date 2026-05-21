@@ -7,7 +7,7 @@ import {
   type CrowdStatus,
   type DensityLevel,
 } from "../utils/crowdMetrics";
-
+import { alertAutomationService } from "./alertAutomationService";
 export type CameraMetadata = {
   camera_id: string;
   location: string;
@@ -176,6 +176,12 @@ class CameraFeedSimulatorService {
 
           const densityLevel = computeDensityLevel(inference.count);
           const status = computeStatus(densityLevel);
+          if (densityLevel === "HIGH") {
+            await alertAutomationService.ensureHighDensityAlert({
+              cameraId: cameraState.metadata.camera_id,
+              location: cameraState.metadata.location,
+            });
+          }
 
           this.latestResults.set(cameraState.metadata.camera_id, {
             ...cameraState.metadata,

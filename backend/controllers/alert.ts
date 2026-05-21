@@ -81,17 +81,16 @@ export const acknowledgeAlert = async (req: AuthRequest, res: Response) => {
 
 export const dismissAlert = async (req: AuthRequest, res: Response) => {
   try {
-    const alert = await AlertModel.findByIdAndUpdate(
-      req.params.id,
-      { status: "dismissed", dismissedAt: new Date() },
-      { new: true },
-    );
+    const alert = await AlertModel.findByIdAndDelete(req.params.id);
 
     if (!alert) {
       return res.status(404).json({ message: "Alert not found" });
     }
 
-    return res.status(200).json(alert);
+    return res.status(200).json({
+      message: "Alert dismissed and deleted",
+      alert,
+    });
   } catch (error) {
     console.error("Error while dismissing alert", error);
     return res.status(500).json({ message: "Internal server error" });
