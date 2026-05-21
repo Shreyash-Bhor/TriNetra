@@ -15,13 +15,15 @@ export function CrowdDensityMapCard() {
 
   return (
     <Card
-      className="glass-strong rounded-3xl border border-white/25 shadow-2xl shadow-black/10 
-    transition-all duration-300 dark:border-white/15"
+      className="glass-strong h-full rounded-3xl border border-slate-300/80
+     shadow-2xl shadow-black/10 transition-all duration-300 dark:border-white/15"
     >
       <CardHeader>
-        <CardTitle className="text-2xl">Live Crowd Density Map</CardTitle>
+        <CardTitle className="text-2xl text-cyan-700 dark:text-cyan-300">
+          Live Crowd Density Map
+        </CardTitle>{" "}
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="h-[22rem] space-y-3 overflow-y-auto">
         {isInitialLoading ? (
           <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground transition-colors duration-300">
             Initializing map service and loading crowd coordinates...
