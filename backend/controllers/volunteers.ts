@@ -8,8 +8,8 @@ export const fetchRegisteredVolunteers = async (
 ) => {
   try {
     const volunteers = await UserModel.find({ role: "volunteer" })
-      .select("username location")
-      .sort({ createdAt: -1 })
+      .select("username firstName lastName location createdAt updatedAt")
+      .sort({ updatedAt: -1, createdAt: -1 })
       .lean();
 
     return res.status(200).json({ volunteers });

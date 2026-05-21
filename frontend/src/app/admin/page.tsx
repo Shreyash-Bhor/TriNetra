@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, BellRing, Camera } from "lucide-react";
+import { AlertTriangle, BellRing, Camera, Search, X } from "lucide-react";
 import { Navigation } from "@/components/navigation";
 import { CameraFeedGrid } from "@/components/admin/camera-feed-grid";
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { acknowledgeAlert, createAlert, fetchAlerts } from "@/lib/alertApi";
 import api from "@/lib/axios";
 import {
@@ -25,7 +26,11 @@ import { CameraCrowdFeed } from "@/types/crowd";
 type RegisteredVolunteer = {
   _id: string;
   username: string;
+  firstName: string;
+  lastName?: string;
   location?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 import { RoleGuard } from "@/components/auth/role-guard";
 import { publishRealtimeUpdate, subscribeRealtimeUpdate } from "@/lib/realtime";
@@ -50,7 +55,9 @@ export default function AdminPage() {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertTitle, setAlertTitle] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
-
+  const [isVolunteersOpen, setIsVolunteersOpen] = useState(false);
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [usernameSearch, setUsernameSearch] = useState("");
   const loadAdminData = async () => {
     const [lostPersonData, alertData, volunteerData] = await Promise.all([
       fetchLostPersonReports(),
@@ -91,10 +98,12 @@ export default function AdminPage() {
     };
   }, [refreshAdminData]);
 
-  const reports = adminData?.reports ?? [];
-  const alerts = adminData?.alerts ?? [];
-  const volunteers = adminData?.volunteers ?? [];
-
+  const reports = useMemo(() => adminData?.reports ?? [], [adminData?.reports]);
+  const alerts = useMemo(() => adminData?.alerts ?? [], [adminData?.alerts]);
+  const volunteers = useMemo(
+    () => adminData?.volunteers ?? [],
+    [adminData?.volunteers],
+  );
   useEffect(() => {
     let isMounted = true;
 
@@ -174,6 +183,42 @@ export default function AdminPage() {
     const cameraIds = new Set(cameraFeeds.map((feed) => feed.camera_id));
     return EXPECTED_CAMERAS.every((cameraId) => cameraIds.has(cameraId));
   }, [cameraFeeds]);
+  const locationOptions = useMemo(() => {
+    const uniqueLocations = Array.from(
+      new Set(
+        volunteers.map((volunteer) => volunteer.location).filter(Boolean),
+      ),
+    ) as string[];
+
+    return ["all", ...uniqueLocations.sort((a, b) => a.localeCompare(b))];
+  }, [volunteers]);
+
+  const filteredVolunteers = useMemo(() => {
+    return volunteers.filter((volunteer) => {
+      const locationMatches =
+        locationFilter === "all" || volunteer.location === locationFilter;
+      const usernameMatches = volunteer.username
+        .toLowerCase()
+        .includes(usernameSearch.toLowerCase().trim());
+
+      return locationMatches && usernameMatches;
+    });
+  }, [locationFilter, usernameSearch, volunteers]);
+
+  const isRecent = (timestamp: string) => {
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    return Date.now() - new Date(timestamp).getTime() <= oneDayMs;
+  };
+
+  const hasRecentlyUpdatedLocation = (volunteer: RegisteredVolunteer) => {
+    if (!volunteer.location) return false;
+
+    return (
+      isRecent(volunteer.updatedAt) &&
+      new Date(volunteer.updatedAt).getTime() >
+        new Date(volunteer.createdAt).getTime()
+    );
+  };
 
   return (
     <RoleGuard allowedRoles={["admin"]}>
@@ -182,7 +227,114 @@ export default function AdminPage() {
 
         <Navigation />
 
-        <main className="relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pt-24 sm:px-8">
+        <div className="fixed right-4 top-20 z-40 sm:right-8">
+          <Button
+            type="button"
+            variant="outline"
+            className="border-white/30 bg-white/55 backdrop-blur-md dark:border-white/15 dark:bg-black/35"
+            onClick={() => setIsVolunteersOpen(true)}
+          >
+            Registered Volunteers
+          </Button>
+        </div>
+
+        {isVolunteersOpen ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/25 backdrop-blur-sm">
+            <Card className="h-[90vh] w-[90vw] min-h-[360px] min-w-[320px] overflow-hidden border border-white/30 bg-white/85 shadow-2xl dark:border-white/15 dark:bg-black/75">
+              <CardHeader className="border-b border-white/20 pb-4 dark:border-white/10">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-2xl">
+                      Registered Volunteers
+                    </CardTitle>
+                    <CardDescription>
+                      Filter by location and search by username.
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsVolunteersOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <select
+                    value={locationFilter}
+                    onChange={(event) => setLocationFilter(event.target.value)}
+                    className="h-10 rounded-xl border border-white/30 bg-white/65 px-3 text-sm outline-none dark:border-white/15 dark:bg-black/30"
+                  >
+                    {locationOptions.map((location) => (
+                      <option key={location} value={location}>
+                        {location === "all" ? "All Locations" : location}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex flex-1 items-center gap-2">
+                    <Button type="button" variant="outline" size="icon">
+                      <Search className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      value={usernameSearch}
+                      onChange={(event) =>
+                        setUsernameSearch(event.target.value)
+                      }
+                      placeholder="Search by username"
+                      className="border-white/30 bg-white/65 dark:border-white/15 dark:bg-black/30"
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="h-[90vh] overflow-y-auto space-y-3 pt-4">
+                {filteredVolunteers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No volunteers found.
+                  </p>
+                ) : (
+                  filteredVolunteers.map((volunteer) => (
+                    <div
+                      key={volunteer._id}
+                      className="space-y-2 rounded-2xl border border-white/30 bg-white/55 p-4 dark:border-white/15 dark:bg-white/5"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-semibold">{volunteer.username}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {isRecent(volunteer.createdAt) ? (
+                            <Badge className="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                              New volunteer
+                            </Badge>
+                          ) : null}
+                          {hasRecentlyUpdatedLocation(volunteer) ? (
+                            <Badge className="bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                              Location updated recently
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </div>
+                      <p className="text-sm">
+                        First Name: {volunteer.firstName}
+                      </p>
+                      <p className="text-sm">
+                        Last Name: {volunteer.lastName ?? "-"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Assigned location:{" "}
+                        {volunteer.location ?? "Not selected"}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
+
+        <main
+          className={`relative mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pt-24 transition sm:px-8 ${
+            isVolunteersOpen ? "pointer-events-none blur-sm" : ""
+          }`}
+        >
           <Card className={glassCardClass}>
             <CardHeader>
               <CardTitle className="text-2xl sm:text-3xl">
@@ -232,34 +384,6 @@ export default function AdminPage() {
                   {volunteers.length}
                 </p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className={glassCardClass}>
-            <CardHeader>
-              <CardTitle className="text-2xl">Registered Volunteers</CardTitle>
-              <CardDescription>
-                Latest volunteer signups with selected operating location.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {volunteers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No volunteers registered yet.
-                </p>
-              ) : (
-                volunteers.map((volunteer) => (
-                  <div
-                    key={volunteer._id}
-                    className="rounded-2xl border border-white/30 bg-white/35 p-4 dark:border-white/15 dark:bg-white/5"
-                  >
-                    <p className="font-semibold">{volunteer.username}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Location: {volunteer.location ?? "Not selected"}
-                    </p>
-                  </div>
-                ))
-              )}
             </CardContent>
           </Card>
 
