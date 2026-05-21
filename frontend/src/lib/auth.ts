@@ -3,11 +3,13 @@ export type AppRole = "admin" | "volunteer";
 export interface AuthUser {
   role: AppRole;
   username: string;
+  location?: "Ramkund" | "Kalaram_Temple" | "Panchavati_Market";
 }
 
 const ACCESS_TOKEN_KEY = "trinetra_access_token";
 const ROLE_KEY = "trinetra_role";
 const USERNAME_KEY = "trinetra_username";
+const LOCATION_KEY = "trinetra_location";
 export const AUTH_CHANGE_EVENT = "trinetra-auth-changed";
 
 const isBrowser = () => typeof window !== "undefined";
@@ -26,6 +28,7 @@ export function setAuthSession(
   accessToken: string,
   role: AppRole,
   username?: string,
+  location?: "Ramkund" | "Kalaram_Temple" | "Panchavati_Market",
 ) {
   if (!isBrowser()) return;
 
@@ -34,6 +37,9 @@ export function setAuthSession(
 
   if (username && username.trim()) {
     window.localStorage.setItem(USERNAME_KEY, username.trim());
+  }
+  if (location) {
+    window.localStorage.setItem(LOCATION_KEY, location);
   }
 
   notifyAuthChanged();
@@ -45,7 +51,7 @@ export function clearAuthSession() {
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(ROLE_KEY);
   window.localStorage.removeItem(USERNAME_KEY);
-
+  window.localStorage.removeItem(LOCATION_KEY);
   notifyAuthChanged();
 }
 
@@ -67,7 +73,20 @@ export function getCurrentUsername(): string | null {
   const username = window.localStorage.getItem(USERNAME_KEY);
   return username ? username : null;
 }
+export function getCurrentLocation(): AuthUser["location"] | null {
+  if (!isBrowser()) return null;
 
+  const location = window.localStorage.getItem(LOCATION_KEY);
+  if (
+    location === "Ramkund" ||
+    location === "Kalaram_Temple" ||
+    location === "Panchavati_Market"
+  ) {
+    return location;
+  }
+
+  return null;
+}
 export function getAuthUser(): AuthUser | null {
   const role = getCurrentRole();
   const token = getAccessToken();
@@ -77,6 +96,7 @@ export function getAuthUser(): AuthUser | null {
   return {
     role,
     username: getCurrentUsername() ?? "User",
+    location: getCurrentLocation() ?? undefined,
   };
 }
 
@@ -101,7 +121,6 @@ export async function logoutUser() {
       },
     });
   } catch {
-    // Intentionally ignore network failures; local auth state is still cleared.
   } finally {
     clearAuthSession();
   }
@@ -142,7 +161,10 @@ export async function restoreAuthSession(): Promise<boolean> {
       return false;
     }
 
-    const data = (await response.json()) as { accessToken?: string };
+    const data = (await response.json()) as {
+      accessToken?: string;
+      user?: { location?: AuthUser["location"] };
+    };
     const accessToken = data.accessToken;
     if (!accessToken) {
       clearAuthSession();
@@ -157,7 +179,7 @@ export async function restoreAuthSession(): Promise<boolean> {
     }
 
     const fallbackUsername = payload?.email?.split("@")[0];
-    setAuthSession(accessToken, role, fallbackUsername);
+    setAuthSession(accessToken, role, fallbackUsername, data.user?.location);
     return true;
   } catch {
     clearAuthSession();

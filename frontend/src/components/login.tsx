@@ -56,6 +56,7 @@ export function LoginForm() {
         response.data.accessToken,
         role,
         response.data.user.username,
+        response.data.user.location,
       );
 
       router.push(roleHomeRoute[role]);

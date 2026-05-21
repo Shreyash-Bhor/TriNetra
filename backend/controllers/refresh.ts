@@ -5,6 +5,7 @@ import { ENV } from "../config/constants";
 import hashToken from "../utils/hash";
 import { refreshCookieOpts } from "../utils/cookies";
 import { generateTokens } from "../utils/generateTokens";
+import { UserModel } from "../models/User";
 
 export async function refresh(req: Request, res: Response) {
   const refreshTokenRaw = req.cookies?.[ENV.COOKIE_NAME];
@@ -54,7 +55,15 @@ export async function refresh(req: Request, res: Response) {
     res
       .cookie(ENV.COOKIE_NAME, refreshToken, refreshCookieOpts)
       .status(200)
-      .json({ accessToken: accessToken, refreshToken: refreshToken });
+      .json({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: {
+          location:
+            (await UserModel.findById(payload.sub).select("location").lean())
+              ?.location ?? null,
+        },
+      });
   } catch (error) {
     return res
       .status(401)

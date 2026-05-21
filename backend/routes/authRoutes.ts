@@ -2,12 +2,23 @@ import express from "express";
 import { loginApp } from "../controllers/login";
 import { signupApp } from "../controllers/signup";
 import { forgotPasswordApp } from "../controllers/forgotPassword";
-import { fetchRegisteredVolunteers } from "../controllers/volunteers";
+import {
+  fetchRegisteredVolunteers,
+  updateVolunteerLocation,
+} from "../controllers/volunteers";
 import { requireAuth, requireRole } from "../middlewares/authMiddleware";
 const router = express.Router();
 router.post("/signup", signupApp);
 router.post("/login", loginApp);
 router.post("/forgot-password", forgotPasswordApp);
+
+router.patch(
+  "/volunteer/location",
+  requireAuth,
+  requireRole("volunteer"),
+  updateVolunteerLocation,
+);
+
 router.get(
   "/volunteers",
   requireAuth,
