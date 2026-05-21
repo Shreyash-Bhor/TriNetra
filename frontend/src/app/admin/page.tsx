@@ -6,7 +6,6 @@ import { Navigation } from "@/components/navigation";
 import { CameraFeedGrid } from "@/components/admin/camera-feed-grid";
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
 import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
-import { VolunteerLiveAlerts } from "@/components/volunteer/volunteer-live-alerts";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,12 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  acknowledgeAlert,
-  createAlert,
-  dismissAlert,
-  fetchAlerts,
-} from "@/lib/alertApi";
+import { acknowledgeAlert, createAlert, fetchAlerts } from "@/lib/alertApi";
 import api from "@/lib/axios";
 import {
   dismissLostPersonReport,
@@ -161,17 +155,6 @@ export default function AdminPage() {
       publishRealtimeUpdate("alerts");
     } catch {
       setStatusMessage("Failed to acknowledge alert.");
-    }
-  };
-  const handleDismissAlert = async (id: string) => {
-    setStatusMessage("");
-    try {
-      await dismissAlert(id);
-      setStatusMessage("Alert dismissed by admin.");
-      await refreshAdminData();
-      publishRealtimeUpdate("alerts");
-    } catch {
-      setStatusMessage("Failed to dismiss alert.");
     }
   };
 
@@ -378,15 +361,7 @@ export default function AdminPage() {
           <CrowdDensityMapCard />
 
           <section className="grid grid-cols-1 items-start gap-8 xl:grid-cols-12">
-            <div className="xl:col-span-4">
-              <VolunteerLiveAlerts
-                alerts={activeAlerts}
-                canDismiss
-                onDismiss={handleDismissAlert}
-              />
-            </div>
-
-            <Card className={`xl:col-span-8 ${glassCardClass}`}>
+            <Card className={`xl:col-span-12 ${glassCardClass}`}>
               <CardHeader>
                 <CardTitle className="text-2xl">Lost Person Reports</CardTitle>
               </CardHeader>

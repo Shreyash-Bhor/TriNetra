@@ -14,6 +14,7 @@ import {
   getAuthUser,
 } from "@/lib/auth";
 import { AuthActions } from "@/components/navigation/auth-actions";
+import { AlertsMenu } from "@/components/navigation/alerts-menu";
 
 const navLinksByRole: Record<AppRole, { label: string; href: string }[]> = {
   admin: [
@@ -86,6 +87,7 @@ export function Navigation() {
         </div>
 
         <div className="flex items-center gap-2">
+          <AlertsMenu role={user?.role} />
           <Button
             variant="ghost"
             size="icon"

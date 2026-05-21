@@ -3,19 +3,11 @@ import { Navigation } from "@/components/navigation";
 import { UserHero } from "@/components/user/user-hero";
 import { UserWeatherPanel } from "@/components/user/user-weather-panel";
 import { UserLivePanels } from "@/components/user/user-live-panels";
-import { fetchAlerts } from "@/lib/alertApi";
 import { fetchLostPersonReports } from "@/lib/lostPersonApi";
 import { getCityWeather } from "@/lib/weather";
 export default async function UserPage() {
   const { data: weather, error } = await getCityWeather();
-  let alerts = [] as Awaited<ReturnType<typeof fetchAlerts>>;
   let reports = [] as Awaited<ReturnType<typeof fetchLostPersonReports>>;
-
-  try {
-    alerts = await fetchAlerts("volunteer");
-  } catch {
-    alerts = [];
-  }
 
   try {
     reports = await fetchLostPersonReports();
@@ -35,7 +27,7 @@ export default async function UserPage() {
       <main className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 pt-24 sm:px-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <UserHero />
-          <UserLivePanels initialAlerts={alerts} initialReports={reports} />
+          <UserLivePanels initialReports={reports} />
           <div className="transition-all duration-300">
             <CrowdDensityMapCard />
           </div>

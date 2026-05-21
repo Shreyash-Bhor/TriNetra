@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Navigation } from "@/components/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LostPersonForm } from "@/components/lost-person/lost-person-form";
@@ -12,13 +12,13 @@ import {
   dismissLostPersonReport,
   fetchLostPersonReports,
 } from "@/lib/lostPersonApi";
-import { createAlert, fetchAlerts } from "@/lib/alertApi";
+import { createAlert } from "@/lib/alertApi";
 import { LostPersonGender } from "@/types/lostPerson";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { publishRealtimeUpdate } from "@/lib/realtime";
 import { useLiveResource } from "@/hooks/use-live-resource";
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
-import { VolunteerLiveAlerts } from "@/components/volunteer/volunteer-live-alerts";
+
 type LostPersonFormValues = {
   fullName: string;
   age: string;
@@ -48,15 +48,7 @@ export default function VolunteerDashboard() {
     onError: () => setMessage("Unable to load reports right now."),
   });
 
-  const { data: alertsData, refresh: loadAlerts } = useLiveResource({
-    topic: "alerts",
-    fetcher: () => fetchAlerts("volunteer"),
-    pollingMs: 5000,
-    onError: () => setAlertStatusMessage("Unable to load alerts right now."),
-  });
-
   const reports = reportsData ?? [];
-  const alerts = alertsData ?? [];
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -95,7 +87,6 @@ export default function VolunteerDashboard() {
       setAlertStatusMessage(
         "Alert sent to admin. It will be visible after admin acknowledgement.",
       );
-      await loadAlerts();
       publishRealtimeUpdate("alerts");
     } catch {
       setAlertStatusMessage("Failed to create alert. Check your inputs.");
@@ -146,7 +137,7 @@ export default function VolunteerDashboard() {
           <CrowdDensityMapCard />
         </div>
 
-        <div className="px-8 pt-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="px-8 pt-8 max-w-7xl mx-auto">
           <Card className="rounded-3xl shadow-2xl">
             <CardHeader>
               <CardTitle className="text-2xl">Create Emergency Alert</CardTitle>
@@ -174,7 +165,6 @@ export default function VolunteerDashboard() {
               </form>
             </CardContent>
           </Card>
-          <VolunteerLiveAlerts alerts={alerts} />{" "}
         </div>
       </div>
     </RoleGuard>
