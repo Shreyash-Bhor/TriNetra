@@ -36,7 +36,7 @@ export function CameraMonitoringCard({
           Realtime simulation feed with density and status per camera.
         </CardDescription>
       </CardHeader>
-      <CardContent className={`space-y-4 overflow-y-auto ${moduleHeightClass}`}>
+      <CardContent className={`space-y-4 overflow-hidden ${moduleHeightClass}`}>
         {cameraError ? <p className="text-red-500">{cameraError}</p> : null}
         {!cameraError && cameraFeeds.length === 0 ? (
           <p className="text-muted-foreground">

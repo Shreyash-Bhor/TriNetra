@@ -8,6 +8,7 @@ type UseLiveResourceOptions<T> = {
   fetcher: () => Promise<T>;
   pollingMs?: number;
   onError?: () => void;
+  onSuccess?: () => void;
 };
 
 export const useLiveResource = <T>({
@@ -15,6 +16,7 @@ export const useLiveResource = <T>({
   fetcher,
   pollingMs = 5000,
   onError,
+  onSuccess,
 }: UseLiveResourceOptions<T>) => {
   const [data, setData] = useState<T | null>(null);
 
@@ -22,10 +24,11 @@ export const useLiveResource = <T>({
     try {
       const next = await fetcher();
       setData(next);
+      onSuccess?.();
     } catch {
       onError?.();
     }
-  }, [fetcher, onError]);
+  }, [fetcher, onError, onSuccess]);
 
   useEffect(() => {
     refresh();

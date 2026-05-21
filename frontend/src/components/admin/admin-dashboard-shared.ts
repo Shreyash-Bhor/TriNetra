@@ -6,7 +6,8 @@ import { SiteAlert } from "@/types/alert";
 export const glassCardClass =
   "glass-strong rounded-3xl border border-slate-300/80 shadow-2xl shadow-black/10 dark:border-white/15";
 
-export const moduleHeightClass = "h-[28rem]";
+export const moduleHeightClass = "h-[30rem]";
+export const compactModuleHeightClass = "h-[10rem]";
 
 export type RegisteredVolunteer = {
   _id: string;

@@ -71,6 +71,7 @@ export default function AdminPage() {
     topic: "alerts",
     fetcher: loadAdminData,
     pollingMs: 5000,
+    onSuccess: () => setError(""),
     onError: () => setError("Could not load admin dashboard data."),
   });
   const reports = useMemo(() => adminData?.reports ?? [], [adminData?.reports]);

@@ -94,53 +94,59 @@ export function LostPersonDashboardTable({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="inline-flex rounded-xl border border-white/30 bg-white/50 p-1 backdrop-blur dark:border-white/15 dark:bg-white/5">
-        <button
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            view === "active"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground"
-          }`}
-          onClick={() => setView("active")}
-        >
-          Active Reports
-        </button>
-        <button
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            view === "completed"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground"
-          }`}
-          onClick={() => setView("completed")}
-        >
-          Completed Reports
-        </button>
-      </div>
-      <div className="max-w-xs">
-        <label
-          htmlFor="report-location-filter"
-          className="mb-1 block text-sm text-muted-foreground"
-        >
-          Filter by volunteer location
-        </label>
-        <select
-          id="report-location-filter"
-          value={locationFilter}
-          onChange={(event) => setLocationFilter(event.target.value)}
-          className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
-        >
-          {locationOptions.map((location) => (
-            <option key={location} value={location}>
-              {location === "all" ? "All locations" : location}
-            </option>
-          ))}
-        </select>
+    <div className="flex h-full min-h-0 flex-col space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="inline-flex rounded-xl border border-white/30 bg-white/50 p-1 backdrop-blur dark:border-white/15 dark:bg-white/5">
+          <button
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              view === "active"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => setView("active")}
+          >
+            Active Reports
+          </button>
+          <button
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              view === "completed"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => setView("completed")}
+          >
+            Completed Reports
+          </button>
+        </div>
+        <div className="w-full max-w-xs">
+          <label
+            htmlFor="report-location-filter"
+            className="mb-1 block text-sm text-muted-foreground"
+          >
+            Filter by location
+          </label>
+          <select
+            id="report-location-filter"
+            value={locationFilter}
+            onChange={(event) => setLocationFilter(event.target.value)}
+            className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+          >
+            {locationOptions.map((location) => (
+              <option key={location} value={location}>
+                {location === "all" ? "All locations" : location}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       {filteredReports.length === 0 ? (
         <p className="text-muted-foreground">No {view} reports available.</p>
       ) : (
-        <div className="max-h-[420px] overflow-auto rounded-2xl border border-white/20 bg-white/30 backdrop-blur dark:border-white/10 dark:bg-white/5">
+        <div
+          className="min-h-0 flex-1 overflow-auto rounded-2xl border border-white/20 bg-white/30
+         backdrop-blur [scrollbar-width:none] dark:border-white/10 dark:bg-white/5 [&::-webkit-scrollbar]:hidden"
+        >
+          {" "}
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/20 dark:border-white/10">

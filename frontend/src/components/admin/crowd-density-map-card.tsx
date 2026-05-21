@@ -3,6 +3,7 @@
 import { CrowdDensityMap } from "@/components/admin/crowd-density-map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCrowdMapFeed } from "@/hooks/useCrowdMapFeed";
+import { moduleHeightClass } from "@/components/admin/admin-dashboard-shared";
 
 export function CrowdDensityMapCard() {
   const {
@@ -23,7 +24,7 @@ export function CrowdDensityMapCard() {
           Live Crowd Density Map
         </CardTitle>{" "}
       </CardHeader>
-      <CardContent className="h-[22rem] space-y-3 overflow-y-auto">
+      <CardContent className={`${moduleHeightClass} space-y-3 overflow-hidden`}>
         {isInitialLoading ? (
           <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground transition-colors duration-300">
             Initializing map service and loading crowd coordinates...

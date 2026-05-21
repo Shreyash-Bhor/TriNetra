@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   glassCardClass,
-  moduleHeightClass,
+  compactModuleHeightClass,
 } from "@/components/admin/admin-dashboard-shared";
 
 type Props = {
@@ -42,7 +42,7 @@ export function AlertModulesRow(props: Props) {
             <BellRing className="h-5 w-5" /> Create Emergency Alert
           </CardTitle>
         </CardHeader>
-        <CardContent className={`overflow-y-auto ${moduleHeightClass}`}>
+        <CardContent className={`overflow-hidden ${compactModuleHeightClass}`}>
           <form onSubmit={onCreateAlert} className="space-y-4">
             <Input
               value={alertTitle}
@@ -75,7 +75,7 @@ export function AlertModulesRow(props: Props) {
           </CardTitle>
         </CardHeader>
         <CardContent
-          className={`space-y-4 overflow-y-auto ${moduleHeightClass}`}
+          className={`space-y-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${compactModuleHeightClass}`}
         >
           {pendingAlerts.length === 0 ? <p>No pending alerts.</p> : null}
           {pendingAlerts.map((alert) => (

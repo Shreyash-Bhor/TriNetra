@@ -24,7 +24,7 @@ export function LostPersonReportsCard({ error, reports, onDismiss }: Props) {
             <UserRoundSearch className="h-5 w-5" /> Lost Person Reports
           </CardTitle>
         </CardHeader>
-        <CardContent className={`overflow-y-auto ${moduleHeightClass}`}>
+        <CardContent className={`overflow-hidden ${moduleHeightClass}`}>
           {error ? (
             <p className="text-red-500">{error}</p>
           ) : (
