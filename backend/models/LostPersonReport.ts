@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface ILostPersonReport extends Document {
   fullName: string;
-  age: number;
+  dateOfBirth: Date;
   gender: "male" | "female" | "other";
   createdBy: mongoose.Types.ObjectId;
   isDismissed: boolean;
@@ -21,11 +21,9 @@ const LostPersonReportSchema = new Schema<ILostPersonReport>(
       minlength: 2,
       maxlength: 120,
     },
-    age: {
-      type: Number,
+    dateOfBirth: {
+      type: Date,
       required: true,
-      min: 0,
-      max: 120,
     },
     gender: {
       type: String,
