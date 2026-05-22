@@ -1,5 +1,9 @@
-import { WeatherResponse, WeatherVisualMeta } from "@/types/weather";
-
+import {
+  ForecastItem,
+  ForecastResponse,
+  WeatherResponse,
+  WeatherVisualMeta,
+} from "@/types/weather";
 const weatherVisualMap: Record<string, WeatherVisualMeta> = {
   Clear: {
     emoji: "☀️",
@@ -101,4 +105,40 @@ export async function getCityWeather(): Promise<{
       error: "Weather service is currently unavailable.",
     };
   }
+}
+export function pickFiveDayForecast(items: any[]): ForecastItem[] {
+  const perDay = new Map<string, any>();
+
+  for (const item of items) {
+    const date = new Date(item.dt * 1000).toISOString().slice(0, 10);
+    if (!perDay.has(date) && perDay.size < 5) {
+      perDay.set(date, item);
+    }
+  }
+
+  return Array.from(perDay.values()).map((item) => ({
+    dt: item.dt,
+    temp: item.main.temp,
+    tempMin: item.main.temp_min,
+    tempMax: item.main.temp_max,
+    condition: item.weather?.[0]?.main ?? "Unknown",
+    description: item.weather?.[0]?.description ?? "",
+    icon: item.weather?.[0]?.icon ?? "01d",
+    humidity: item.main.humidity,
+  }));
+}
+
+export async function fetchWeatherForCoordinates(lat: number, lon: number) {
+  const response = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+  const payload = (await response.json()) as {
+    current: WeatherResponse;
+    forecast: ForecastResponse;
+    error?: string;
+  };
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Unable to fetch weather details.");
+  }
+
+  return payload;
 }

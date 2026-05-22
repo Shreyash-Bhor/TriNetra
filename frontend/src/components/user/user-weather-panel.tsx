@@ -35,19 +35,13 @@ export function UserWeatherPanel({ weather, error }: UserWeatherPanelProps) {
           icon: Wind,
           toneClass: "text-cyan-600 dark:text-cyan-300",
         },
-        {
-          label: "Condition",
-          value: weatherMeta.label,
-          icon: Cloud,
-          toneClass: "text-violet-600 dark:text-violet-300",
-        },
       ]
     : [];
 
   return (
     <section className="rounded-3xl border border-slate-300/90 bg-white/70 p-5 shadow-xl backdrop-blur-xl transition-all duration-300 dark:border-white/15 dark:bg-white/5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">Local Weather</h2>
+        <h2 className="text-xl font-semibold">🌍 Local Weather Now</h2>
         <span className="text-2xl" aria-hidden="true">
           {weatherMeta.emoji}
         </span>
@@ -67,6 +61,7 @@ export function UserWeatherPanel({ weather, error }: UserWeatherPanelProps) {
               </p>
 
               <p className="text-sm capitalize text-muted-foreground">
+                <Cloud className="mr-1 inline h-3.5 w-3.5" />{" "}
                 {weatherMeta.label} • {weather.weather[0]?.description}
               </p>
             </div>
@@ -86,15 +81,6 @@ export function UserWeatherPanel({ weather, error }: UserWeatherPanelProps) {
                 </p>
               </div>
             ))}
-            <div className="rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 dark:border-white/15 dark:bg-white/5">
-              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                Last Updated
-              </p>
-              <p className="mt-1 font-semibold">
-                {new Date((weather as any).dt * 1000).toLocaleTimeString()}
-              </p>
-              <p className="text-sm text-muted-foreground">Live city feed</p>
-            </div>
           </div>
         </div>
       ) : (
