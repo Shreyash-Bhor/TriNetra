@@ -17,49 +17,47 @@ export function UserWeatherForecastPanel({
       {error ? (
         <p className="text-sm text-red-500">{error}</p>
       ) : forecast ? (
-        <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="flex min-w-max flex-nowrap gap-3">
-            {forecast.items.map((item) => {
-              const meta = getWeatherVisualMeta(item.condition);
-              return (
-                <article
-                  key={item.dt}
-                  className="min-w-[170px] rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 dark:border-white/15 dark:bg-white/5"
-                >
-                  <p className="text-xs font-medium text-cyan-700 dark:text-cyan-300">
-                    {new Date(item.dt * 1000).toLocaleDateString(undefined, {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                    })}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {forecast.items.map((item) => {
+            const meta = getWeatherVisualMeta(item.condition);
+            return (
+              <article
+                key={item.dt}
+                className="h-full rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 dark:border-white/15 dark:bg-white/5"
+              >
+                <p className="text-xs font-medium text-cyan-700 dark:text-cyan-300">
+                  {new Date(item.dt * 1000).toLocaleDateString(undefined, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </p>
+                <div className="mt-1 flex items-center justify-between">
+                  <p className="text-lg font-semibold">
+                    {Math.round(item.temp)}°C
                   </p>
-                  <div className="mt-1 flex items-center justify-between">
-                    <p className="text-lg font-semibold">
-                      {Math.round(item.temp)}°C
-                    </p>
-                    <span className="text-lg" aria-hidden="true">
-                      {meta.emoji}
-                    </span>
-                  </div>
-                  <Image
-                    src={`https://openweathermap.org/img/wn/${item.icon}@2x.png`}
-                    alt={item.description}
-                    width={50}
-                    height={50}
-                    className="h-10 w-10"
-                    unoptimized
-                  />
-                  <p className="text-xs capitalize text-muted-foreground">
-                    {item.description}
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                    H: {Math.round(item.tempMax)}° • L:{" "}
-                    {Math.round(item.tempMin)}°
-                  </p>
-                </article>
-              );
-            })}
-          </div>
+                  <span className="text-lg" aria-hidden="true">
+                    {meta.emoji}
+                  </span>
+                </div>
+                <Image
+                  src={`https://openweathermap.org/img/wn/${item.icon}@2x.png`}
+                  alt={item.description}
+                  width={50}
+                  height={50}
+                  className="h-10 w-10"
+                  unoptimized
+                />
+                <p className="text-xs capitalize text-muted-foreground">
+                  {item.description}
+                </p>
+                <p className="mt-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                  H: {Math.round(item.tempMax)}° • L: {Math.round(item.tempMin)}
+                  °
+                </p>
+              </article>
+            );
+          })}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">

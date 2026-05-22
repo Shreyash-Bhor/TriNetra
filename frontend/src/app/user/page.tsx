@@ -1,7 +1,6 @@
 import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
 import { LostPersonReportsPanel } from "@/components/lost-person/lost-person-reports-panel";
 import { Navigation } from "@/components/navigation";
-import { UserHero } from "@/components/user/user-hero";
 import { UserWeatherModules } from "@/components/user/user-weather-modules";
 import { fetchLostPersonReports } from "@/lib/lostPersonApi";
 
@@ -23,7 +22,6 @@ export default async function UserPage() {
       />
       <Navigation />
       <main className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-4 pt-24 sm:px-8">
-        <UserHero />
         <UserWeatherModules />
         <div className="transition-all duration-300">
           <CrowdDensityMapCard />

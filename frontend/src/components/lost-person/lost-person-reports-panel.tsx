@@ -21,9 +21,14 @@ export function LostPersonReportsPanel({
   const reports = reportsData ?? initialReports;
 
   return (
-    <section className="rounded-3xl border border-white/30 bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+    <section
+      className="h-[30rem] overflow-hidden rounded-3xl border border-white/30
+ bg-white/40 p-5 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
+    >
       <h2 className="mb-4 text-lg font-semibold">Lost Person Reports</h2>
-      <LostPersonDashboardTable reports={reports} />
+      <div className="h-[calc(30rem-4.5rem)] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <LostPersonDashboardTable reports={reports} />
+      </div>
     </section>
   );
 }

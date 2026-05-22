@@ -35,6 +35,12 @@ export function UserWeatherPanel({ weather, error }: UserWeatherPanelProps) {
           icon: Wind,
           toneClass: "text-cyan-600 dark:text-cyan-300",
         },
+        {
+          label: "Condition",
+          value: weatherMeta.label,
+          icon: Cloud,
+          toneClass: "text-violet-600 dark:text-violet-300",
+        },
       ]
     : [];
 
@@ -50,38 +56,35 @@ export function UserWeatherPanel({ weather, error }: UserWeatherPanelProps) {
       {error ? (
         <p className="text-sm text-red-500">{error}</p>
       ) : weather ? (
-        <div className="overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="flex min-w-max flex-nowrap gap-3">
-            <div className="rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 dark:border-white/15 dark:bg-white/5">
-              <p className="text-sm font-medium text-cyan-700 dark:text-cyan-300">
-                {weather.name}
-              </p>
-              <p className="text-2xl font-semibold text-foreground">
-                {Math.round(weather.main.temp)}°C
-              </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <div className="rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 dark:border-white/15 dark:bg-white/5">
+            <p className="text-2xl font-medium text-cyan-700 dark:text-cyan-300">
+              {weather.name}
+            </p>
+            <p className="text-2xl font-semibold text-foreground">
+              {Math.round(weather.main.temp)}°C
+            </p>
 
-              <p className="text-sm capitalize text-muted-foreground">
-                <Cloud className="mr-1 inline h-3.5 w-3.5" />{" "}
-                {weatherMeta.label} • {weather.weather[0]?.description}
-              </p>
-            </div>
-
-            {stats.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 dark:border-white/15 dark:bg-white/5"
-              >
-                <p
-                  className={`flex items-center gap-1 text-xs font-medium ${item.toneClass}`}
-                >
-                  <item.icon className="h-3.5 w-3.5" /> {item.label}
-                </p>
-                <p className="mt-1 font-semibold text-foreground">
-                  {item.value}
-                </p>
-              </div>
-            ))}
+            <p className="text-sm capitalize text-muted-foreground">
+              <Cloud className="mr-1 inline h-3.5 w-3.5" /> {weatherMeta.label}{" "}
+              • {weather.weather[0]?.description}
+            </p>
           </div>
+
+          {stats.map((item) => (
+            <div
+              key={item.label}
+              className="rounded-2xl border border-slate-300/85 bg-white/75 p-4 transition-colors duration-300 
+              dark:border-white/15 dark:bg-white/5"
+            >
+              <p
+                className={`flex items-center gap-1 text-2xl font-medium ${item.toneClass}`}
+              >
+                <item.icon className="h-3.5 w-3.5" /> {item.label}
+              </p>
+              <p className="mt-1 font-semibold text-foreground">{item.value}</p>
+            </div>
+          ))}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
