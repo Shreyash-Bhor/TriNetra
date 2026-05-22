@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { LogOut, MapPin, User } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { AuthUser, logoutUser } from "@/lib/auth";
+import {
+  AuthUser,
+  getCurrentLocation,
+  logoutUser,
+  setCurrentLocation,
+} from "@/lib/auth";
 import {
   locationLabelMap,
   updateVolunteerLocation,
@@ -29,9 +34,10 @@ function getInitials(username: string) {
 export function ProfileMenu({ user }: ProfileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [location, setLocation] = useState<VolunteerLocation | null>(
-    user.location ?? null,
-  );
+  const [location, setLocation] = useState<VolunteerLocation | null>(() => {
+    const resolvedLocation = user.location ?? getCurrentLocation();
+    return resolvedLocation ?? null;
+  });
   const [selectedLocation, setSelectedLocation] = useState<VolunteerLocation>(
     user.location ?? volunteerLocationOptions[0],
   );
@@ -191,6 +197,7 @@ export function ProfileMenu({ user }: ProfileMenuProps) {
                     const volunteer =
                       await updateVolunteerLocation(selectedLocation);
                     setLocation(volunteer.location);
+                    setCurrentLocation(volunteer.location);
                     publishRealtimeUpdate("volunteers");
                     closeLocationModal();
                   } catch {

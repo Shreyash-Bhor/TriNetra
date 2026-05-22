@@ -87,6 +87,18 @@ export function getCurrentLocation(): AuthUser["location"] | null {
 
   return null;
 }
+
+export function setCurrentLocation(location: AuthUser["location"]) {
+  if (!isBrowser()) return;
+
+  if (location) {
+    window.localStorage.setItem(LOCATION_KEY, location);
+  } else {
+    window.localStorage.removeItem(LOCATION_KEY);
+  }
+
+  notifyAuthChanged();
+}
 export function getAuthUser(): AuthUser | null {
   const role = getCurrentRole();
   const token = getAccessToken();
