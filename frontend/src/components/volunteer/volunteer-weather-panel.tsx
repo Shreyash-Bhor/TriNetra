@@ -54,36 +54,32 @@ export function VolunteerWeatherPanel({
       {error ? (
         <p className="text-sm text-red-500">{error}</p>
       ) : weather ? (
-        <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="flex min-w-max flex-nowrap gap-3">
-            <div className="rounded-2xl border border-slate-300/85 bg-white/80 p-4 dark:border-white/15 dark:bg-white/5">
-              <p className="text-xs font-medium text-cyan-700 dark:text-cyan-300">
-                {weather.name}
-              </p>
-              <p className="mt-1 flex items-center gap-2 text-2xl font-semibold">
-                <Thermometer className="h-5 w-5 text-orange-600 dark:text-orange-300" />
-                {Math.round(weather.main.temp)}°C
-              </p>
-              <p className="text-sm capitalize text-muted-foreground">
-                {weather.weather[0]?.description}
-              </p>
-            </div>
-            {stats.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-2xl border border-slate-300/85 bg-white/80 p-4 dark:border-white/15 dark:bg-white/5"
-              >
-                <p
-                  className={`flex items-center gap-1 text-xs font-medium ${item.tone}`}
-                >
-                  <item.icon className="h-3.5 w-3.5" /> {item.label}
-                </p>
-                <p className="mt-1 font-semibold text-foreground">
-                  {item.value}
-                </p>
-              </div>
-            ))}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-2xl border border-slate-300/85 bg-white/80 p-4 dark:border-white/15 dark:bg-white/5">
+            <p className="text-xs font-medium text-cyan-700 dark:text-cyan-300">
+              {weather.name}
+            </p>
+            <p className="mt-1 flex items-center gap-2 text-2xl font-semibold">
+              <Thermometer className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+              {Math.round(weather.main.temp)}°C
+            </p>
+            <p className="text-sm capitalize text-muted-foreground">
+              {weather.weather[0]?.description}
+            </p>
           </div>
+          {stats.map((item) => (
+            <div
+              key={item.label}
+              className="rounded-2xl border border-slate-300/85 bg-white/80 p-4 dark:border-white/15 dark:bg-white/5"
+            >
+              <p
+                className={`flex items-center gap-1 text-2xl font-medium ${item.tone}`}
+              >
+                <item.icon className="h-3.5 w-3.5" /> {item.label}
+              </p>
+              <p className="mt-1 font-semibold text-foreground">{item.value}</p>
+            </div>
+          ))}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">

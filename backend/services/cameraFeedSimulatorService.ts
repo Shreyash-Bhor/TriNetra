@@ -83,7 +83,10 @@ class CameraFeedSimulatorService {
   private latestResults = new Map<string, CameraFeedResult>();
   private nextImageIndex = 0;
   private totalImageSlots = 0;
-
+  private lifetimePeak: { location: string; count: number } = {
+    location: "N/A",
+    count: 0,
+  };
   async start() {
     if (this.isRunning) {
       return;
@@ -115,6 +118,9 @@ class CameraFeedSimulatorService {
       next_image_index: this.nextImageIndex + 1,
       interval_ms: CAMERA_CAPTURE_INTERVAL_MS,
     };
+  }
+  getLifetimePeak() {
+    return this.lifetimePeak;
   }
 
   private async ensureInitialized() {
@@ -191,6 +197,12 @@ class CameraFeedSimulatorService {
             heatmap: inference.heatmap,
             timestamp: new Date().toISOString(),
           });
+          if (inference.count > this.lifetimePeak.count) {
+            this.lifetimePeak = {
+              location: cameraState.metadata.location,
+              count: inference.count,
+            };
+          }
         } catch (error) {
           console.error(
             `Failed to process frame ${cameraState.metadata.camera_id}/${imageName}`,

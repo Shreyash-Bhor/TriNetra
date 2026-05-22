@@ -9,6 +9,7 @@ import { LostPersonForm } from "@/components/lost-person/lost-person-form";
 import { VolunteerLostPersonTable } from "@/components/volunteer/volunteer-lost-person-table";
 import { VolunteerCrowdDensityMapCard } from "@/components/volunteer/volunteer-crowd-density-map-card";
 import { VolunteerWeatherPanel } from "@/components/volunteer/volunteer-weather-panel";
+import { VolunteerKpiCards } from "@/components/volunteer/volunteer-kpi-cards";
 import { useLiveResource } from "@/hooks/use-live-resource";
 import {
   createLostPersonReport,
@@ -101,7 +102,11 @@ export function VolunteerDashboardContent({
   return (
     <main className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 pt-24 sm:px-8">
       <section>
-        <VolunteerWeatherPanel weather={weather} error={weatherError} />{" "}
+        <VolunteerKpiCards />
+      </section>
+
+      <section>
+        <VolunteerWeatherPanel weather={weather} error={weatherError} />
       </section>
 
       <section className="h-fit">
@@ -115,7 +120,7 @@ export function VolunteerDashboardContent({
               <UserRoundSearch className="h-5 w-5" /> Create Lost Person Report
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[24rem] overflow-hidden">
+          <CardContent className="overflow-hidden pb-5">
             <LostPersonForm
               formData={formData}
               isSubmitting={isSubmitting}
@@ -132,7 +137,7 @@ export function VolunteerDashboardContent({
               <BellRing className="h-5 w-5" /> Create Emergency Alert
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[24rem] space-y-4 overflow-hidden">
+          <CardContent className="space-y-4 overflow-hidden pb-5">
             <form onSubmit={handleCreateAlert} className="space-y-4">
               <Input
                 placeholder="Alert title"
@@ -164,7 +169,7 @@ export function VolunteerDashboardContent({
               Recent Lost Person Reports
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-[20rem] min-h-[20rem] overflow-hidden">
+          <CardContent className="h-[30rem] min-h-[30rem] overflow-hidden">
             <VolunteerLostPersonTable
               reports={reports}
               canDismiss

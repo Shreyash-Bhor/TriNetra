@@ -5,6 +5,7 @@ import {
 } from "../controllers/crowdAnalysis";
 import {
   getLatestSimulatedCameraFeed,
+  getVolunteerDashboardKpis,
   getSimulationHealth,
 } from "../controllers/cameraFeedSimulation";
 import { requireAuth, requireRole } from "../middlewares/authMiddleware";
@@ -30,6 +31,12 @@ router.get(
   getLatestSimulatedCameraFeed,
 );
 router.get("/simulation/public-latest", getLatestSimulatedCameraFeed);
+router.get(
+  "/simulation/volunteer-kpis",
+  requireAuth,
+  requireRole("volunteer", "admin"),
+  getVolunteerDashboardKpis,
+);
 router.get(
   "/simulation/health",
   requireAuth,

@@ -26,7 +26,7 @@ export function LostPersonForm({
   onSubmit,
 }: LostPersonFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="space-y-3">
       <div>
         <label htmlFor="fullName" className="block text-sm mb-1">
           Full Name
@@ -41,40 +41,42 @@ export function LostPersonForm({
         />
       </div>
 
-      <div>
-        <label htmlFor="dateOfBirth" className="block text-sm mb-1">
-          Date of Birth
-        </label>
-        <Input
-          id="dateOfBirth"
-          type="date"
-          value={formData.dateOfBirth}
-          onChange={(event) =>
-            onChange({ ...formData, dateOfBirth: event.target.value })
-          }
-          required
-        />
-      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="dateOfBirth" className="block text-sm mb-1">
+            Date of Birth
+          </label>
+          <Input
+            id="dateOfBirth"
+            type="date"
+            value={formData.dateOfBirth}
+            onChange={(event) =>
+              onChange({ ...formData, dateOfBirth: event.target.value })
+            }
+            required
+          />
+        </div>
 
-      <div>
-        <label htmlFor="gender" className="block text-sm mb-1">
-          Gender
-        </label>
-        <select
-          id="gender"
-          value={formData.gender}
-          onChange={(event) =>
-            onChange({
-              ...formData,
-              gender: event.target.value as LostPersonGender,
-            })
-          }
-          className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
-        >
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
+        <div>
+          <label htmlFor="gender" className="block text-sm mb-1">
+            Gender
+          </label>
+          <select
+            id="gender"
+            value={formData.gender}
+            onChange={(event) =>
+              onChange({
+                ...formData,
+                gender: event.target.value as LostPersonGender,
+              })
+            }
+            className="border-input h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
       </div>
 
       <Button type="submit" disabled={isSubmitting} className="w-full">
