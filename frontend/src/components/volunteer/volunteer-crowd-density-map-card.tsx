@@ -4,7 +4,7 @@ import { CrowdDensityMap } from "@/components/admin/crowd-density-map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCrowdMapFeed } from "@/hooks/useCrowdMapFeed";
 
-export function CrowdDensityMapCard() {
+export function VolunteerCrowdDensityMapCard() {
   const {
     cameraFeeds,
     errorMessage,
@@ -14,34 +14,31 @@ export function CrowdDensityMapCard() {
   } = useCrowdMapFeed();
 
   return (
-    <Card
-      className="glass-strong h-full rounded-3xl border border-slate-300/80
-     shadow-2xl shadow-black/10 transition-all duration-300 dark:border-white/15"
-    >
+    <Card className="glass-strong rounded-3xl border border-slate-300/80 shadow-2xl shadow-black/10 transition-all duration-300 dark:border-white/15">
       <CardHeader>
         <CardTitle className="text-2xl text-cyan-700 dark:text-cyan-300">
           Live Crowd Density Map
-        </CardTitle>{" "}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {isInitialLoading ? (
-          <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground transition-colors duration-300">
+          <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
             Initializing map service and loading crowd coordinates...
           </div>
         ) : null}
+
         {!isInitialLoading && errorMessage ? (
-          <div
-            className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 
-          transition-colors duration-300 dark:text-amber-300"
-          >
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
             {errorMessage}
           </div>
         ) : null}
+
         {!isInitialLoading && cameraFeeds.length === 0 ? (
-          <div className="rounded-xl border p-4 text-sm text-muted-foreground transition-colors duration-300">
+          <div className="rounded-xl border p-4 text-sm text-muted-foreground">
             No coordinates available from the backend yet.
           </div>
         ) : null}
+
         {!isInitialLoading && cameraFeeds.length > 0 ? (
           <>
             <CrowdDensityMap cameraFeeds={cameraFeeds} />

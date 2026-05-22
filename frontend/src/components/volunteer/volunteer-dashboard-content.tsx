@@ -6,9 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LostPersonForm } from "@/components/lost-person/lost-person-form";
-import { LostPersonDashboardTable } from "@/components/lost-person/lost-person-dashboard-table";
-import { CrowdDensityMapCard } from "@/components/admin/crowd-density-map-card";
-import { UserWeatherPanel } from "@/components/user/user-weather-panel";
+import { VolunteerLostPersonTable } from "@/components/volunteer/volunteer-lost-person-table";
+import { VolunteerCrowdDensityMapCard } from "@/components/volunteer/volunteer-crowd-density-map-card";
+import { VolunteerWeatherPanel } from "@/components/volunteer/volunteer-weather-panel";
 import { useLiveResource } from "@/hooks/use-live-resource";
 import {
   createLostPersonReport,
@@ -19,10 +19,7 @@ import { createAlert } from "@/lib/alertApi";
 import { publishRealtimeUpdate } from "@/lib/realtime";
 import { LostPersonGender } from "@/types/lostPerson";
 import { WeatherResponse } from "@/types/weather";
-import {
-  glassCardClass,
-  moduleHeightClass,
-} from "@/components/admin/admin-dashboard-shared";
+import { glassCardClass } from "@/components/admin/admin-dashboard-shared";
 
 type LostPersonFormValues = {
   fullName: string;
@@ -104,21 +101,21 @@ export function VolunteerDashboardContent({
   return (
     <main className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 pt-24 sm:px-8">
       <section>
-        <UserWeatherPanel weather={weather} error={weatherError} />
+        <VolunteerWeatherPanel weather={weather} error={weatherError} />{" "}
       </section>
 
-      <section>
-        <CrowdDensityMapCard />
+      <section className="h-fit">
+        <VolunteerCrowdDensityMapCard />
       </section>
 
-      <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <Card className={glassCardClass}>
+      <section className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-stretch">
+        <Card className={`${glassCardClass} flex flex-col`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl text-violet-700 dark:text-violet-300">
               <UserRoundSearch className="h-5 w-5" /> Create Lost Person Report
             </CardTitle>
           </CardHeader>
-          <CardContent className={`${moduleHeightClass} overflow-y-auto`}>
+          <CardContent className="h-[24rem] overflow-hidden">
             <LostPersonForm
               formData={formData}
               isSubmitting={isSubmitting}
@@ -129,15 +126,13 @@ export function VolunteerDashboardContent({
           </CardContent>
         </Card>
 
-        <Card className={glassCardClass}>
+        <Card className={`${glassCardClass} flex flex-col`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl text-rose-700 dark:text-rose-300">
               <BellRing className="h-5 w-5" /> Create Emergency Alert
             </CardTitle>
           </CardHeader>
-          <CardContent
-            className={`${moduleHeightClass} space-y-4 overflow-y-auto`}
-          >
+          <CardContent className="h-[24rem] space-y-4 overflow-hidden">
             <form onSubmit={handleCreateAlert} className="space-y-4">
               <Input
                 placeholder="Alert title"
@@ -169,8 +164,8 @@ export function VolunteerDashboardContent({
               Recent Lost Person Reports
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <LostPersonDashboardTable
+          <CardContent className="h-[20rem] min-h-[20rem] overflow-hidden">
+            <VolunteerLostPersonTable
               reports={reports}
               canDismiss
               onDismiss={async (id) => {

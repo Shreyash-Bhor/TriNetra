@@ -3,10 +3,8 @@
 import { useMemo, useState } from "react";
 import { LostPersonReport } from "@/types/lostPerson";
 import { Button } from "@/components/ui/button";
-const dateFormatter = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "UTC",
-});
 
+const dateFormatter = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC" });
 const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
   dateStyle: "medium",
   timeStyle: "short",
@@ -14,29 +12,16 @@ const dateTimeFormatter = new Intl.DateTimeFormat("en-GB", {
 });
 
 const parseDateValue = (value: string) => {
-  if (!value) return null;
-
-  const normalized = value.trim();
-  if (!normalized) return null;
-
-  const directDate = new Date(normalized);
-  if (!Number.isNaN(directDate.getTime())) {
-    return directDate;
-  }
-
-  const slashMatch = normalized.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (slashMatch) {
-    const [, day, month, year] = slashMatch;
-    const slashDate = new Date(
-      Date.UTC(Number(year), Number(month) - 1, Number(day)),
-    );
-
-    if (!Number.isNaN(slashDate.getTime())) {
-      return slashDate;
-    }
-  }
-
-  return null;
+  if (!value?.trim()) return null;
+  const directDate = new Date(value.trim());
+  if (!Number.isNaN(directDate.getTime())) return directDate;
+  const slashMatch = value.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!slashMatch) return null;
+  const [, day, month, year] = slashMatch;
+  const slashDate = new Date(
+    Date.UTC(Number(year), Number(month) - 1, Number(day)),
+  );
+  return Number.isNaN(slashDate.getTime()) ? null : slashDate;
 };
 
 const formatDate = (value: string) => {
@@ -49,20 +34,21 @@ const formatDateTime = (value: string) => {
   return parsed ? dateTimeFormatter.format(parsed) : "Unknown";
 };
 
-type LostPersonDashboardTableProps = {
+type Props = {
   reports: LostPersonReport[];
   canDismiss?: boolean;
   onDismiss?: (id: string) => Promise<void>;
 };
 
-export function LostPersonDashboardTable({
+export function VolunteerLostPersonTable({
   reports,
   canDismiss = false,
   onDismiss,
-}: LostPersonDashboardTableProps) {
+}: Props) {
   const [view, setView] = useState<"active" | "completed">("active");
   const [locationFilter, setLocationFilter] = useState("all");
   const [dismissingId, setDismissingId] = useState<string | null>(null);
+
   const locationOptions = useMemo(() => {
     const uniqueLocations = Array.from(
       new Set(
@@ -72,16 +58,16 @@ export function LostPersonDashboardTable({
     return ["all", ...uniqueLocations.sort((a, b) => a.localeCompare(b))];
   }, [reports]);
 
-  const filteredReports = useMemo(() => {
-    return reports.filter((report) => {
-      const viewMatches =
-        view === "active" ? !report.isDismissed : report.isDismissed;
-      const locationMatches =
-        locationFilter === "all" ||
-        report.createdBy?.location === locationFilter;
-      return viewMatches && locationMatches;
-    });
-  }, [locationFilter, reports, view]);
+  const filteredReports = useMemo(
+    () =>
+      reports.filter(
+        (report) =>
+          (view === "active" ? !report.isDismissed : report.isDismissed) &&
+          (locationFilter === "all" ||
+            report.createdBy?.location === locationFilter),
+      ),
+    [locationFilter, reports, view],
+  );
 
   const handleDismiss = async (id: string) => {
     if (!onDismiss) return;
@@ -98,21 +84,13 @@ export function LostPersonDashboardTable({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="inline-flex rounded-xl border border-white/30 bg-white/50 p-1 backdrop-blur dark:border-white/15 dark:bg-white/5">
           <button
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              view === "active"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground"
-            }`}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${view === "active" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
             onClick={() => setView("active")}
           >
             Active Reports
           </button>
           <button
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              view === "completed"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground"
-            }`}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${view === "completed" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
             onClick={() => setView("completed")}
           >
             Completed Reports
@@ -142,10 +120,7 @@ export function LostPersonDashboardTable({
       {filteredReports.length === 0 ? (
         <p className="text-muted-foreground">No {view} reports available.</p>
       ) : (
-        <div
-          className="min-h-0 flex-1 overflow-auto rounded-2xl border border-white/20 bg-white/30
-         backdrop-blur [scrollbar-width:none] dark:border-white/10 dark:bg-white/5 [&::-webkit-scrollbar]:hidden"
-        >
+        <div className="min-h-0 flex-1 overflow-auto rounded-2xl border border-white/20 bg-white/30 backdrop-blur [scrollbar-width:none] dark:border-white/10 dark:bg-white/5 [&::-webkit-scrollbar]:hidden">
           <table className="w-full table-fixed border-collapse text-left">
             <thead>
               <tr className="border-b border-white/20 dark:border-white/10">
@@ -168,7 +143,7 @@ export function LostPersonDashboardTable({
                     {report.fullName}
                   </td>
                   <td className="px-4 py-3">
-                    {formatDate(report.dateOfBirth)}{" "}
+                    {formatDate(report.dateOfBirth)}
                   </td>
                   <td className="truncate px-4 py-3 capitalize">
                     {report.gender}
@@ -180,7 +155,7 @@ export function LostPersonDashboardTable({
                     {report.createdBy?.location ?? "Unknown"}
                   </td>
                   <td className="px-4 py-3">
-                    {formatDateTime(report.createdAt)}{" "}
+                    {formatDateTime(report.createdAt)}
                   </td>
                   {canDismiss ? (
                     <td className="px-4 py-3">
