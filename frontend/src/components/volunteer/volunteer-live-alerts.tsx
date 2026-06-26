@@ -18,7 +18,10 @@ export function VolunteerLiveAlerts({
   const overflowAlerts = alerts.slice(2);
 
   return (
-    <section className="rounded-3xl border border-red-300/70 bg-gradient-to-br from-red-100/90 via-amber-50/90 to-white p-6 shadow-2xl backdrop-blur-xl dark:border-red-500/30 dark:from-red-900/35 dark:via-orange-950/20 dark:to-slate-900/50">
+    <section
+      className="rounded-3xl border border-red-300 bg-gradient-to-br from-red-100 via-amber-50 to-white p-6 
+    shadow-2xl dark:border-red-500/30 dark:from-red-950 dark:via-slate-900 dark:to-slate-950"
+    >
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Siren className="h-5 w-5 text-red-600 dark:text-red-300" />
@@ -30,7 +33,10 @@ export function VolunteerLiveAlerts({
       </div>
 
       {alerts.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-red-300/70 bg-white/80 p-5 text-sm text-muted-foreground dark:border-red-300/25 dark:bg-black/20">
+        <div
+          className="rounded-2xl border border-dashed border-red-300/70 bg-white/80 p-5 text-sm
+        text-muted-foreground dark:border-red-300/25 dark:bg-black/20"
+        >
           <div className="flex items-center gap-2 font-medium text-foreground">
             <BellRing className="h-4 w-4" />
             No current emergency alerts.

@@ -102,7 +102,7 @@ export function LoginForm() {
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="you@domain.com"
+                    placeholder="Enter email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     required

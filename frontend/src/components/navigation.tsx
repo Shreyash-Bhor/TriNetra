@@ -57,7 +57,10 @@ export function Navigation() {
   }, [user]);
 
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-white/45 backdrop-blur-xl transition-colors duration-300 dark:border-white/10 dark:bg-black/25">
+    <nav
+      className="sticky top-0 z-50 border-b border-white/30 bg-white/45 backdrop-blur-xl transition-colors
+     duration-300 dark:border-white/10 dark:bg-black/25"
+    >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
